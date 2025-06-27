@@ -19,16 +19,9 @@ const element: ElementType = {
   }
 };
 
-function clearCanvas(ctx: CanvasRenderingContext2D) {
-  ctx.beginPath();
-  ctx.fillStyle = "white";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fill();
-  ctx.closePath();
-}
+
 
 const container = new Vbox(element);
 container.draw(ctx);
-clearCanvas(ctx);
-container.value.background.color = [2, 0, 0, 0.1];
+container.value.background.color = [25, 25, 255, 1];
 container.draw(ctx);
