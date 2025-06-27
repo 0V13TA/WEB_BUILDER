@@ -1,4 +1,4 @@
-export type ElementType =
+export type ElementTypes =
   | "box"
   | "vbox"
   | "hbox"
@@ -49,7 +49,7 @@ export type boxModelOffset = {
   bottom: number;
 };
 
-export type Element = {
+export type ElementType = {
   id?: string;
   name?: string;
   min?: Size;
@@ -67,10 +67,10 @@ export type Element = {
   margin?: boxModelOffset;
   padding?: boxModelOffset;
   fixedSize?: Size;
-  type: ElementType;
+  type: ElementTypes;
   video?: string | null;
   outline?: BorderStyle | null;
-  background?: {
+  background: {
     color: Color;
     imageSize?: Size;
     image?: string | null;
