@@ -5,7 +5,7 @@ export type NodeJson<T> = {
 
 export class Node<T> {
   public value: T;
-  private readonly children: Node<T>[] = [];
+  protected readonly children: Node<T>[] = [];
 
   constructor(value: T) {
     this.value = value;

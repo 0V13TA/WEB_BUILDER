@@ -18,7 +18,7 @@ export type GradientDirection =
   | "right";
 
 export type Color = [r: number, g: number, b: number, a: number];
-export type Size = { width: number | null; height: number | null };
+export type Size = { width: number; height: number };
 
 export type BorderStyle = {
   gap?: number;
@@ -54,11 +54,13 @@ export type ElementType = {
   min?: Size;
   max?: Size;
   id?: string;
+  size?: Size;
   color?: Color;
   name?: string;
   video?: string;
   fixedSize?: Size;
   visible?: boolean;
+  childGap?: number;
   type: ElementTypes;
   outline?: BorderStyle;
   margin?: boxModelOffset;

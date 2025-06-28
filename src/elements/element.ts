@@ -5,10 +5,16 @@ import { isValidRGBA, rgbaToHex } from "../utils/colorUtils";
 export default class Element extends Node<ElementType> {
   xPos: number = 0;
   yPos: number = 0;
-  constructor(value: ElementType) {
+  size: { width: number; height: number };
+
+  constructor(value: ElementType, pos?: { x: number; y: number }) {
     super(value);
-    this.xPos = value.position?.x ?? 0;
-    this.yPos = value.position?.y ?? 0;
+    this.xPos = pos?.x ?? value.position?.x ?? 0;
+    this.yPos = pos?.y ?? value.position?.y ?? 0;
+    this.size = {
+      width: value.size?.width ?? 300,
+      height: value.size?.height ?? 400
+    };
 
     if (!value.background.color) value.background.color = [0, 0, 0, 0];
     if (value.color && !isValidRGBA(value.color).isValid)
@@ -21,8 +27,28 @@ export default class Element extends Node<ElementType> {
       );
   }
 
+  public getChildren(): Element[] {
+    return this.children as Element[];
+  }
+
   draw(_ctx: CanvasRenderingContext2D) {
     throw new Error("The draw method has not been implemented.");
+  }
+
+  public computeModalSize(): [number, number] {
+    // Get padding and margin
+    const [xPadding, yPadding] = this.getPadding();
+    const [xMargin, yMargin] = this.getMargins();
+
+    // Use fixedSize if available, otherwise use this.size
+    const contentWidth = this.value.fixedSize?.width ?? this.size.width;
+    const contentHeight = this.value.fixedSize?.height ?? this.size.height;
+
+    // Total size = content + padding + margin
+    const width = contentWidth + xPadding + xMargin;
+    const height = contentHeight + yPadding + yMargin;
+
+    return [width, height];
   }
 
   protected drawOutline(
@@ -91,6 +117,21 @@ export default class Element extends Node<ElementType> {
     return [0, 0];
   }
 
+  private getMargins(): [xMargin: number, yMargin: number] {
+    if (this.value.margin) {
+      let topMargin = this.value.margin?.top ?? 0,
+        bottomMargin = this.value.margin?.bottom ?? 0,
+        leftMargin = this.value.margin?.left ?? 0,
+        rightMargin = this.value.margin?.right ?? 0;
+
+      let xMargin = leftMargin + rightMargin,
+        yMargin = topMargin + bottomMargin;
+
+      return [xMargin, yMargin];
+    }
+    return [0, 0];
+  }
+
   public getContentPos(
     relX: number,
     relY: number
@@ -112,12 +153,12 @@ export default class Element extends Node<ElementType> {
       right: this.value.padding?.right ?? 0
     };
 
-    // Content starts after left margin and left padding, and top margin and top padding
     const xPos = margin.left + padding.left + relX;
     const yPos = margin.top + padding.top + relY;
 
-    // Margin offset is just the margin
     const marginOffsets: [number, number] = [margin.left, margin.top];
+
+    console.log(xPos, yPos);
 
     return { totalOffsets: [xPos, yPos], marginOffsets };
   }

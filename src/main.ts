@@ -26,14 +26,13 @@ function init() {
       height: 200
     },
     position: {
-      x: 10,
-      y: 10
+      x: 0,
+      y: 0
     },
     outline: {
-      color: [255, 0, 0, 1],
-      style: "dotted",
-      width: 10,
-      gap: 2
+      width: 4,
+      style: "solid",
+      color: [255, 0, 0, 1]
     },
     margin: {
       top: 10,
@@ -46,9 +45,24 @@ function init() {
       left: 0,
       right: 0,
       bottom: 0
+    },
+    childGap: 10
+  };
+
+  const element2: ElementType = {
+    type: "vbox",
+    background: {
+      color: [0, 255, 0, 1]
+    },
+    fixedSize: {
+      width: 100,
+      height: 100
     }
   };
 
   const container = new Vbox(element);
   container.draw(ctx);
+  container.addChild(new Vbox(element2));
+  container.addChild(new Vbox(element2));
+  container.alignChildren(ctx);
 }
