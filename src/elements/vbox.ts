@@ -1,9 +1,9 @@
 import Container from "./container";
-import type { Color, ElementType } from "../utils/types";
+import type { Color, ContainerType } from "../utils/types";
 import { rgbaToHex } from "../utils/colorUtils";
 
 export default class Vbox extends Container {
-  constructor(value: ElementType, pos?: { x: number; y: number }) {
+  constructor(value: ContainerType, pos?: { x: number; y: number }) {
     pos ? super(value, pos) : super(value);
     this.value.type = "vbox";
   }
@@ -28,18 +28,34 @@ export default class Vbox extends Container {
     let outlineWidth = this.value.outline?.width ?? 0;
     let offsetX = this.xPos + outlineWidth / 2 + (margin?.left ?? 0);
     let offsetY = this.yPos + outlineWidth / 2 + (margin?.top ?? 0);
-    const children = this.getChildren();
+    const children = this.getChildren() as Vbox[];
 
     for (const child of children) {
-      const childSize = child.computeModalSize();
+      const [width, height] = child.computeModalSize();
+      const wrapIsTrue = this.value.wrap;
+      const minHeight = this.value.min?.height;
+      const fixedHeight = this.value.fixedSize?.height;
+      const hasConstraint = fixedHeight ?? minHeight;
+      const mSizeIsGreaterThanOffsetY = minHeight && offsetY >= minHeight;
+      const fSizeIsGreaterThanOffsetY = fixedHeight && offsetY >= fixedHeight;
+
+      if (
+        wrapIsTrue &&
+        hasConstraint &&
+        (fSizeIsGreaterThanOffsetY || mSizeIsGreaterThanOffsetY)
+      ) {
+        if (fixedHeight && offsetY + height >= fixedHeight) {
+          offsetX += child.computeModalSize()[0] + (this.value.childGap ?? 0);
+          offsetY = this.yPos + outlineWidth / 2 + (margin?.top ?? 0);
+        }
+      }
+
       child.xPos = offsetX;
       child.yPos = offsetY;
-      child.size.width = childSize[0];
-      child.size.height = childSize[1];
-      offsetY += childSize[1] + (this.value.childGap ?? 0);
+      child.size.width = width;
+      child.size.height = height;
+      offsetY += height + (this.value.childGap ?? 0);
       child.draw(_ctx);
     }
-
-    console.log(offsetX, offsetY);
   }
 }

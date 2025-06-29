@@ -2,12 +2,14 @@ import { Node } from "../utils/tree/node";
 import { type ElementType } from "../utils/types";
 import { isValidRGBA, rgbaToHex } from "../utils/colorUtils";
 
-export default class Element extends Node<ElementType> {
+export default class Element<
+  T extends ElementType = ElementType
+> extends Node<T> {
   xPos: number = 0;
   yPos: number = 0;
   size: { width: number; height: number };
 
-  constructor(value: ElementType, pos?: { x: number; y: number }) {
+  constructor(value: T, pos?: { x: number; y: number }) {
     super(value);
     this.xPos = pos?.x ?? value.position?.x ?? 0;
     this.yPos = pos?.y ?? value.position?.y ?? 0;
@@ -27,8 +29,8 @@ export default class Element extends Node<ElementType> {
       );
   }
 
-  public getChildren(): Element[] {
-    return this.children as Element[];
+  public getChildren(): Element<T>[] {
+    return this.children as Element<T>[];
   }
 
   draw(_ctx: CanvasRenderingContext2D) {
@@ -157,8 +159,6 @@ export default class Element extends Node<ElementType> {
     const yPos = margin.top + padding.top + relY;
 
     const marginOffsets: [number, number] = [margin.left, margin.top];
-
-    console.log(xPos, yPos);
 
     return { totalOffsets: [xPos, yPos], marginOffsets };
   }

@@ -1,5 +1,5 @@
 import Vbox from "./elements/vbox";
-import type { ElementType } from "./utils/types";
+import type { ContainerType } from "./utils/types";
 
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -16,14 +16,15 @@ function init() {
 
   //
 
-  const element: ElementType = {
+  const element: ContainerType = {
     type: "vbox",
+    wrap: true,
     background: {
       color: [0, 0, 255, 1]
     },
     fixedSize: {
-      width: 200,
-      height: 200
+      width: 400,
+      height: 323
     },
     position: {
       x: 0,
@@ -46,10 +47,10 @@ function init() {
       right: 0,
       bottom: 0
     },
-    childGap: 10
+    childGap: 5
   };
 
-  const element2: ElementType = {
+  const element2: ContainerType = {
     type: "vbox",
     background: {
       color: [0, 255, 0, 1]
@@ -57,12 +58,16 @@ function init() {
     fixedSize: {
       width: 100,
       height: 100
-    }
+    },
+    wrap: false
   };
 
   const container = new Vbox(element);
+  container.addChild(new Vbox(element2));
+  container.addChild(new Vbox(element2));
+  container.addChild(new Vbox(element2));
+  container.addChild(new Vbox(element2));
+  container.getChildrenSize();
   container.draw(ctx);
-  container.addChild(new Vbox(element2));
-  container.addChild(new Vbox(element2));
   container.alignChildren(ctx);
 }
