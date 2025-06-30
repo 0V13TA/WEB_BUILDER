@@ -90,10 +90,14 @@ export type ElementType = {
   video?: string;
   fixedSize?: Size;
   visible?: boolean;
+  flexGrow?: number;
   type: ElementTypes;
   margin?: BoxSpacing;
+  flexShrink?: number;
   padding?: BoxSpacing;
   border?: BorderStyle;
+  alignSelf?: AlignItems;
+  flexBasis?: number | "auto";
   meta?: Record<string, any>;
 
   position?: {
@@ -122,11 +126,4 @@ export interface FlexContainerType extends ElementType {
   alignItems?: AlignItems;
   alignContent?: AlignContent;
   gap?: number;
-}
-
-export interface FlexChildType extends ElementType {
-  flexGrow?: number;
-  flexShrink?: number;
-  flexBasis?: number | "auto";
-  alignSelf?: AlignItems;
 }

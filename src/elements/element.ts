@@ -31,7 +31,11 @@ export const defaultElementType: ElementType = {
     imageSrc: undefined,
     linearGradient: undefined,
     radialGradient: undefined
-  }
+  },
+  flexGrow: 0,
+  flexShrink: 0,
+  flexBasis: "auto",
+  alignSelf: "flex-start"
 };
 
 export default class Element extends Node<ElementType> {
