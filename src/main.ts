@@ -18,13 +18,9 @@ function init() {
 
   const element: ContainerType = {
     type: "vbox",
-    wrap: true,
+    wrap: false,
     background: {
       color: [0, 0, 255, 1]
-    },
-    fixedSize: {
-      width: 400,
-      height: 323
     },
     position: {
       x: 0,
@@ -67,7 +63,16 @@ function init() {
   container.addChild(new Vbox(element2));
   container.addChild(new Vbox(element2));
   container.addChild(new Vbox(element2));
-  container.getChildrenSize();
+  container.addChild(new Vbox(element2));
+  container.addChild(new Vbox(element2));
+  container.addChild(new Vbox(element2));
+  container.addChild(new Vbox(element2));
+  container.addChild(new Vbox(element2));
+  container.addChild(new Vbox(element2));
+  container.addChild(new Vbox(element2));
+  container.addChild(new Vbox(element2));
+  container.addChild(new Vbox(element2));
+  container.addChild(new Vbox(element2));
+  container.addChild(new Vbox(element2));
   container.draw(ctx);
-  container.alignChildren(ctx);
 }
