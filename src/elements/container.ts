@@ -1,5 +1,5 @@
 import Element from "./element";
-import type { ContainerType, ElementType } from "../utils/types";
+import type { ElementType } from "../utils/types";
 
 export default class Container<
   T extends ElementType = ElementType

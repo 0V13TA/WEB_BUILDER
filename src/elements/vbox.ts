@@ -2,6 +2,7 @@ import Container from "./container";
 import type Element from "./element";
 import { rgbaToHex } from "../utils/colorUtils";
 import type { Color, ContainerType } from "../utils/types";
+import { parseBoxSpacing } from "../utils/parseBoxSpacing";
 
 export default class Vbox extends Container<ContainerType> {
   constructor(value: ContainerType, pos?: { x: number; y: number }) {
@@ -36,31 +37,32 @@ export default class Vbox extends Container<ContainerType> {
     const outline = this.value.outline?.width ?? 0;
     const childGap = this.value.childGap ?? 0;
     const wrap = this.value.wrap;
-    const maxHeight =
-      this.value.max?.height ??
-      this.value.fixedSize?.height ??
-      this.size.height;
+    const padding = parseBoxSpacing(this.value.padding);
 
-    // For wrapping
+    const xPadding = padding.left + padding.right;
+    const yPadding = padding.top + padding.bottom;
+
+    // Wrapping logic (vertical)
     let columnWidths: number[] = [];
     let columnHeights: number[] = [];
     let currentColumnWidth = 0;
     let currentColumnHeight = 0;
     let childCountInColumn = 0;
+    const maxHeight =
+      this.value.max?.height ??
+      this.value.fixedSize?.height ??
+      this.size.height;
 
-    for (const element of children) {
-      const child = element;
+    for (const child of children) {
       const [width, height] = child.computeModalSize();
 
       if (
         wrap &&
         currentColumnHeight + height > maxHeight &&
-        childCountInColumn > 0 // Only wrap if not at the very top
+        childCountInColumn > 0
       ) {
-        // Finish current column
         columnWidths.push(currentColumnWidth);
         columnHeights.push(currentColumnHeight - childGap); // Remove last gap
-        // Start new column
         currentColumnWidth = 0;
         currentColumnHeight = 0;
         childCountInColumn = 0;
@@ -71,21 +73,21 @@ export default class Vbox extends Container<ContainerType> {
       childCountInColumn++;
     }
 
-    // Push the last column if it has children
     if (childCountInColumn > 0) {
       columnWidths.push(currentColumnWidth);
-      columnHeights.push(currentColumnHeight - childGap); // Remove last gap
+      columnHeights.push(currentColumnHeight - childGap);
     }
 
-    // Total width is sum of all column widths + gaps between columns + outline
-    const totalWidth =
+    // Total width/height from children
+    const childrenWidth =
       columnWidths.reduce((a, b) => a + b, 0) +
-      childGap * (columnWidths.length - 1) +
-      outline;
+      childGap * (columnWidths.length - 1);
+    const childrenHeight =
+      columnHeights.length > 0 ? Math.max(...columnHeights) : 0;
 
-    // Total height is the tallest column + outline
-    const totalHeight =
-      (columnHeights.length > 0 ? Math.max(...columnHeights) : 0) + outline;
+    // Add container's own padding, margin, and outline
+    const totalWidth = childrenWidth + xPadding + outline * 2;
+    const totalHeight = childrenHeight + yPadding + outline * 2;
 
     // Set the size property
     if (this.value.fixedSize) {
@@ -102,12 +104,10 @@ export default class Vbox extends Container<ContainerType> {
   }
 
   public layoutChildren(_ctx: CanvasRenderingContext2D): void {
-    const margin = this.value.margin;
+    const margin = parseBoxSpacing(this.value.margin);
     const parentOutlineWidth = this.value.outline?.width ?? 0;
-    const offsetStartX =
-      this.xPos + parentOutlineWidth / 2 + (margin?.left ?? 0);
-    const offsetStartY =
-      this.yPos + parentOutlineWidth / 2 + (margin?.top ?? 0);
+    const offsetStartX = this.xPos + parentOutlineWidth / 2 + margin.left;
+    const offsetStartY = this.yPos + parentOutlineWidth / 2 + margin.top;
     let offsetX = offsetStartX;
     let offsetY = offsetStartY;
     let columnMaxWidth = 0;

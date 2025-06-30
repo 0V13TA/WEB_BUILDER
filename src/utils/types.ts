@@ -50,6 +50,13 @@ export type boxModelOffset = {
   bottom: number;
 };
 
+export type BoxSpacing =
+  | number
+  | [number]
+  | [number, number]
+  | [number, number, number]
+  | [number, number, number, number];
+
 export type ElementType = {
   min?: Size;
   max?: Size;
@@ -61,8 +68,8 @@ export type ElementType = {
   visible?: boolean;
   type: ElementTypes;
   outline?: BorderStyle;
-  margin?: boxModelOffset;
-  padding?: boxModelOffset;
+  margin?: BoxSpacing;
+  padding?: BoxSpacing;
   meta?: Record<string, any>;
 
   position?: {
@@ -83,6 +90,7 @@ export type ElementType = {
     radialGradient?: RadialGradient;
   };
   size?: { width: number; height: number };
+  childGap?: number;
 };
 
-export type ContainerType = ElementType & { wrap: boolean; childGap?: number };
+export type ContainerType = ElementType & { wrap: boolean };

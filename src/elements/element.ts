@@ -1,6 +1,7 @@
 import { Node } from "../utils/tree/node";
 import { type ElementType } from "../utils/types";
 import { isValidRGBA, rgbaToHex } from "../utils/colorUtils";
+import { parseBoxSpacing } from "../utils/parseBoxSpacing";
 
 export default class Element<
   T extends ElementType = ElementType
@@ -39,8 +40,9 @@ export default class Element<
 
   public computeModalSize(): [number, number] {
     // Get padding and margin
-    const [xPadding, yPadding] = this.getPadding();
+    const gap = this.value.childGap ?? 0;
     const [xMargin, yMargin] = this.getMargins();
+    const [xPadding, yPadding] = this.getPadding();
 
     // Use fixedSize if available, otherwise use this.size
     const contentWidth = this.value.fixedSize?.width ?? this.size.width;
@@ -48,7 +50,7 @@ export default class Element<
 
     // Total size = content + padding + margin
     const width = contentWidth + xPadding + xMargin;
-    const height = contentHeight + yPadding + yMargin;
+    const height = contentHeight + yPadding + yMargin + gap;
 
     return [width, height];
   }
@@ -62,7 +64,7 @@ export default class Element<
     const style = this.value.outline;
     const totalWidth = xPadding + width;
     const totalHeight = yPadding + height;
-    const margin = this.value.margin;
+    const margin = parseBoxSpacing(this.value.margin);
 
     if (style) {
       ctx.lineWidth = style.width;
@@ -104,11 +106,12 @@ export default class Element<
   }
 
   protected getPadding(): [xPadding: number, yPadding: number] {
+    const padding = parseBoxSpacing(this.value.padding);
     if (this.value.padding) {
-      let topPadding = this.value.padding.top ?? 0,
-        rightPadding = this.value.padding.right ?? 0,
-        bottomPadding = this.value.padding.bottom ?? 0,
-        leftPadding = this.value.padding.left ?? 0;
+      let topPadding = padding.top ?? 0,
+        rightPadding = padding.right ?? 0,
+        bottomPadding = padding.bottom ?? 0,
+        leftPadding = padding.left ?? 0;
 
       let xPadding = rightPadding + leftPadding,
         yPadding = topPadding + bottomPadding;
@@ -120,11 +123,12 @@ export default class Element<
   }
 
   private getMargins(): [xMargin: number, yMargin: number] {
+    const margin = parseBoxSpacing(this.value.margin);
     if (this.value.margin) {
-      let topMargin = this.value.margin?.top ?? 0,
-        bottomMargin = this.value.margin?.bottom ?? 0,
-        leftMargin = this.value.margin?.left ?? 0,
-        rightMargin = this.value.margin?.right ?? 0;
+      let topMargin = margin.top ?? 0,
+        bottomMargin = margin.bottom ?? 0,
+        leftMargin = margin.left ?? 0,
+        rightMargin = margin.right ?? 0;
 
       let xMargin = leftMargin + rightMargin,
         yMargin = topMargin + bottomMargin;
@@ -141,24 +145,27 @@ export default class Element<
     totalOffsets: [xPos: number, yPos: number];
     marginOffsets: [xPos: number, yPos: number];
   } {
-    const margin = {
-      top: this.value.margin?.top ?? 0,
-      bottom: this.value.margin?.bottom ?? 0,
-      left: this.value.margin?.left ?? 0,
-      right: this.value.margin?.right ?? 0
+    const margin = parseBoxSpacing(this.value.margin);
+    const padding = parseBoxSpacing(this.value.padding);
+
+    const boxMargin = {
+      top: margin.top ?? 0,
+      bottom: margin.bottom ?? 0,
+      left: margin.left ?? 0,
+      right: margin.right ?? 0
     };
 
-    const padding = {
-      top: this.value.padding?.top ?? 0,
-      bottom: this.value.padding?.bottom ?? 0,
-      left: this.value.padding?.left ?? 0,
-      right: this.value.padding?.right ?? 0
+    const boxPadding = {
+      top: padding.top ?? 0,
+      bottom: padding.bottom ?? 0,
+      left: padding.left ?? 0,
+      right: padding.right ?? 0
     };
 
-    const xPos = margin.left + padding.left + relX;
-    const yPos = margin.top + padding.top + relY;
+    const xPos = boxMargin.left + boxPadding.left + relX;
+    const yPos = boxMargin.top + boxPadding.top + relY;
 
-    const marginOffsets: [number, number] = [margin.left, margin.top];
+    const marginOffsets: [number, number] = [boxMargin.left, boxMargin.top];
 
     return { totalOffsets: [xPos, yPos], marginOffsets };
   }

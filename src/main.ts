@@ -31,18 +31,8 @@ function init() {
       style: "solid",
       color: [255, 0, 0, 1]
     },
-    margin: {
-      top: 10,
-      left: 10,
-      right: 10,
-      bottom: 10
-    },
-    padding: {
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0
-    },
+    margin: 10,
+    padding: 0,
     childGap: 5
   };
 
@@ -58,21 +48,25 @@ function init() {
     wrap: false
   };
 
+  const child2: ContainerType = {
+    type: "vbox",
+    background: {
+      color: [255, 0, 255, 1]
+    },
+    margin: 0,
+    wrap: true,
+    childGap: 10,
+    padding: [10, 0, 0, 0]
+  };
+
   const container = new Vbox(element);
-  container.addChild(new Vbox(element2));
-  container.addChild(new Vbox(element2));
-  container.addChild(new Vbox(element2));
-  container.addChild(new Vbox(element2));
-  container.addChild(new Vbox(element2));
-  container.addChild(new Vbox(element2));
-  container.addChild(new Vbox(element2));
-  container.addChild(new Vbox(element2));
-  container.addChild(new Vbox(element2));
-  container.addChild(new Vbox(element2));
-  container.addChild(new Vbox(element2));
-  container.addChild(new Vbox(element2));
-  container.addChild(new Vbox(element2));
-  container.addChild(new Vbox(element2));
-  container.addChild(new Vbox(element2));
+  const subChild = new Vbox(child2);
+  subChild.addChild(new Vbox(element2));
+  subChild.addChild(new Vbox(element2));
+  container.addChild(subChild);
+  for (let i = 0; i < 3; i++) {
+    container.addChild(new Vbox(element2));
+  }
+
   container.draw(ctx);
 }
