@@ -1,3 +1,4 @@
+import { parseBoxSpacing } from "../utils/parseBoxSpacing";
 import { Node } from "../utils/tree/node";
 import type { ElementType } from "../utils/types";
 
@@ -15,7 +16,7 @@ export const defaultElementType: ElementType = {
   type: "element",
   margin: 0,
   padding: 0,
-  outline: undefined,
+  border: undefined,
   meta: {},
   position: { x: 0, y: 0 },
   borderRadius: {
@@ -41,11 +42,48 @@ export default class Element extends Node<ElementType> {
     this.value = { ...defaultElementType, ...value };
   }
 
+  public draw(_ctx: CanvasRenderingContext2D): void {
+    throw new Error("Method (draw) must be implemented in subclasses");
+  }
+
   addChild(child: Element): void {
     super.addChild(child);
   }
 
   getChildren(): Element[] {
     return super.getChildren() as Element[];
+  }
+
+  protected getPadding(): {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  } {
+    return parseBoxSpacing(this.value.padding);
+  }
+
+  protected getMargin(): {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  } {
+    return parseBoxSpacing(this.value.margin);
+  }
+
+  protected getBorderWidth(): number {
+    return this.value.border?.width ?? 0;
+  }
+
+  protected getBoxModelOffset(): { x: number; y: number } {
+    const padding = this.getPadding();
+    const margin = this.getMargin();
+    const borderWidth = this.getBorderWidth();
+
+    return {
+      x: padding.left + margin.left + borderWidth,
+      y: padding.top + margin.top + borderWidth
+    };
   }
 }

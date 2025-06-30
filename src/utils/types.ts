@@ -17,6 +17,30 @@ export type GradientDirection =
   | "left"
   | "right";
 
+// In your types.ts
+export type FlexDirection = "row" | "row-reverse" | "column" | "column-reverse";
+export type FlexWrap = "nowrap" | "wrap" | "wrap-reverse";
+export type JustifyContent =
+  | "flex-start"
+  | "flex-end"
+  | "center"
+  | "space-between"
+  | "space-around"
+  | "space-evenly";
+export type AlignItems =
+  | "flex-start"
+  | "flex-end"
+  | "center"
+  | "stretch"
+  | "baseline";
+export type AlignContent =
+  | "flex-start"
+  | "flex-end"
+  | "center"
+  | "stretch"
+  | "space-between"
+  | "space-around";
+
 export type Color = [r: number, g: number, b: number, a: number];
 export type Size = { width?: number; height?: number };
 
@@ -69,7 +93,7 @@ export type ElementType = {
   type: ElementTypes;
   margin?: BoxSpacing;
   padding?: BoxSpacing;
-  outline?: BorderStyle;
+  border?: BorderStyle;
   meta?: Record<string, any>;
 
   position?: {
@@ -91,4 +115,18 @@ export type ElementType = {
   };
 };
 
-export type ContainerType = ElementType & { wrap: boolean };
+export interface FlexContainerType extends ElementType {
+  flexDirection?: FlexDirection;
+  flexWrap?: FlexWrap;
+  justifyContent?: JustifyContent;
+  alignItems?: AlignItems;
+  alignContent?: AlignContent;
+  gap?: number;
+}
+
+export interface FlexChildType extends ElementType {
+  flexGrow?: number;
+  flexShrink?: number;
+  flexBasis?: number | "auto";
+  alignSelf?: AlignItems;
+}
