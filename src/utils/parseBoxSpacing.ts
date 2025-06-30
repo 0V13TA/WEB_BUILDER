@@ -10,16 +10,17 @@ export function parseBoxSpacing(spacing?: number | (number | undefined)[]): {
 
   if (Array.isArray(spacing)) {
     const undefinedIndices = spacing
-      .map((v, i) => (v === undefined ? i : -1))
-      .filter((i) => i !== -1);
+      .map((spacingValue, spacingIndex) =>
+        spacingValue === undefined ? spacingIndex : -1
+      )
+      .filter((spacingIndex) => spacingIndex !== -1);
     if (undefinedIndices.length > 0) {
       console.warn(
         `parseBoxSpacing: Undefined value(s) at index/indices [${undefinedIndices.join(
           ", "
-        )}] in spacing array:`,
-        spacing,
-        "\nThese values will default to 0.",
-        new Error().stack
+        )}] in spacing array: ${spacing}\nThese values will default to 0. ${
+          new Error().stack
+        }`
       );
     }
   }
