@@ -3,19 +3,19 @@ export type NodeJson<T> = {
   children: NodeJson<T>[];
 };
 
-export class Node<T> {
+export class Node<T, C extends Node<any, any> = Node<T, any>> {
   public value: T;
-  protected readonly children: Node<T>[] = [];
+  protected readonly children: C[] = [];
 
   constructor(value: T) {
     this.value = value;
   }
 
-  public addChild(child: Node<T>): void {
+  public addChild(child: C): void {
     this.children.push(child);
   }
 
-  public getChildren(): Node<T>[] {
+  public getChildren(): C[] {
     return this.children;
   }
 
@@ -31,7 +31,7 @@ export class Node<T> {
     return this.children.length > 0;
   }
 
-  public removeChild(child: Node<T>): void {
+  public removeChild(child: C): void {
     const index = this.children.indexOf(child);
     if (index !== -1) this.children.splice(index, 1);
   }
@@ -53,13 +53,11 @@ export class Node<T> {
     };
   }
 
-  fromJson(child: NodeJson<T>): void {
-    this.setValue(child.value);
-    this.children.length = 0; // Clear existing children
-    for (const childData of child.children) {
-      const childNode = new Node<T>(childData.value);
-      childNode.fromJson(childData);
-      this.children.push(childNode);
+  static fromJson<T>(json: NodeJson<T>): Node<T> {
+    const node = new Node<T>(json.value);
+    for (const childData of json.children) {
+      node.addChild(Node.fromJson(childData));
     }
+    return node;
   }
 }

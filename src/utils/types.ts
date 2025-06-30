@@ -67,9 +67,9 @@ export type ElementType = {
   fixedSize?: Size;
   visible?: boolean;
   type: ElementTypes;
-  outline?: BorderStyle;
   margin?: BoxSpacing;
   padding?: BoxSpacing;
+  outline?: BorderStyle;
   meta?: Record<string, any>;
 
   position?: {
@@ -89,8 +89,6 @@ export type ElementType = {
     linearGradient?: LinearGradient;
     radialGradient?: RadialGradient;
   };
-  size?: { width: number; height: number };
-  childGap?: number;
 };
 
 export type ContainerType = ElementType & { wrap: boolean };

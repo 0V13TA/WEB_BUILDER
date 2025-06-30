@@ -12,4 +12,5 @@ function init() {
   canvas.width = innerWidth * ratio;
 
   //
+  ctx.fillStyle = "white";
 }
