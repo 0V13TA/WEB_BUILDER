@@ -42,7 +42,7 @@ export default class Element<
     // Get padding and margin
     const gap = this.value.childGap ?? 0;
     const [xMargin, yMargin] = this.getMargins();
-    const [xPadding, yPadding] = this.getPadding();
+    const [xPadding, yPadding] = this.getPaddings();
 
     // Use fixedSize if available, otherwise use this.size
     const contentWidth = this.value.fixedSize?.width ?? this.size.width;
@@ -60,7 +60,7 @@ export default class Element<
     width: number,
     height: number
   ): void {
-    const [xPadding, yPadding] = this.getPadding();
+    const [xPadding, yPadding] = this.getPaddings();
     const style = this.value.outline;
     const totalWidth = xPadding + width;
     const totalHeight = yPadding + height;
@@ -105,7 +105,7 @@ export default class Element<
     ctx.stroke();
   }
 
-  protected getPadding(): [xPadding: number, yPadding: number] {
+  protected getPaddings(): [xPadding: number, yPadding: number] {
     const padding = parseBoxSpacing(this.value.padding);
     if (this.value.padding) {
       let topPadding = padding.top ?? 0,

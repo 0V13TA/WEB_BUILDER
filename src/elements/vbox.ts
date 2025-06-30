@@ -86,7 +86,7 @@ export default class Vbox extends Container<ContainerType> {
       columnHeights.length > 0 ? Math.max(...columnHeights) : 0;
 
     // Add container's own padding, margin, and outline
-    const totalWidth = childrenWidth + xPadding + outline * 2;
+    const totalWidth = childrenWidth + xPadding + outline;
     const totalHeight = childrenHeight + yPadding + outline * 2;
 
     // Set the size property
