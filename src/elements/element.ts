@@ -35,7 +35,13 @@ export const defaultElementType: ElementType = {
   flexGrow: 0,
   flexShrink: 0,
   flexBasis: "auto",
-  alignSelf: "flex-start"
+  alignSelf: "flex-start",
+  gap: 0,
+  flexWrap: "wrap",
+  alignItems: "stretch",
+  flexDirection: "row",
+  alignContent: "stretch",
+  justifyContent: "flex-start"
 };
 
 export default class Element extends Node<ElementType> {
@@ -74,6 +80,37 @@ export default class Element extends Node<ElementType> {
     left: number;
   } {
     return parseBoxSpacing(this.value.margin);
+  }
+
+  public getBoxModelSize(): { width: number; height: number } {
+    // Content size (from fixedSize or min/max fallback)
+    const contentWidth =
+      this.value.fixedSize?.width ?? this.value.min?.width ?? 0;
+    const contentHeight =
+      this.value.fixedSize?.height ?? this.value.min?.height ?? 0;
+
+    const padding = this.getPadding();
+    const margin = this.getMargin();
+    const borderWidth = this.getBorderWidth();
+
+    // Total size = content + padding (both sides) + border (both sides) + margin (both sides)
+    const width =
+      contentWidth +
+      padding.left +
+      padding.right +
+      borderWidth * 2 +
+      margin.left +
+      margin.right;
+
+    const height =
+      contentHeight +
+      padding.top +
+      padding.bottom +
+      borderWidth * 2 +
+      margin.top +
+      margin.bottom;
+
+    return { width, height };
   }
 
   protected getBorderWidth(): number {

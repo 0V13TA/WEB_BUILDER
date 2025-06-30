@@ -1,11 +1,10 @@
 export type ElementTypes =
   | "box"
-  | "vbox"
-  | "hbox"
   | "grid"
   | "text"
   | "circle"
-  | "element";
+  | "element"
+  | "flexContainer";
 
 export type GradientDirection =
   | "top"
@@ -97,8 +96,14 @@ export type ElementType = {
   padding?: BoxSpacing;
   border?: BorderStyle;
   alignSelf?: AlignItems;
-  flexBasis?: number | "auto";
   meta?: Record<string, any>;
+  flexBasis?: number | "auto";
+  flexDirection?: FlexDirection;
+  flexWrap?: FlexWrap;
+  justifyContent?: JustifyContent;
+  alignItems?: AlignItems;
+  alignContent?: AlignContent;
+  gap?: number;
 
   position?: {
     x: number;
@@ -118,12 +123,3 @@ export type ElementType = {
     radialGradient?: RadialGradient;
   };
 };
-
-export interface FlexContainerType extends ElementType {
-  flexDirection?: FlexDirection;
-  flexWrap?: FlexWrap;
-  justifyContent?: JustifyContent;
-  alignItems?: AlignItems;
-  alignContent?: AlignContent;
-  gap?: number;
-}
