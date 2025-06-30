@@ -1,3 +1,6 @@
+import FlexContainer from "./elements/flexContainer";
+import type { ElementType } from "./utils/types";
+
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 document.body.append(canvas);
@@ -8,9 +11,18 @@ addEventListener("resize", init);
 function init() {
   // Resize the canvas
   const ratio = 0.99;
-  canvas.height = innerHeight * ratio;
   canvas.width = innerWidth * ratio;
+  canvas.height = innerHeight * ratio;
+
+  const flexValue: ElementType = {
+    margin: 0,
+    padding: 0,
+    background: {
+      color: [255, 10, 10, 1]
+    }
+  };
 
   //
-  ctx.fillStyle = "white";
+  const flexBox = new FlexContainer(flexValue);
+  flexBox.draw(ctx);
 }

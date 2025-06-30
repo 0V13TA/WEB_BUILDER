@@ -84,13 +84,14 @@ export type ElementType = {
   min?: Size;
   max?: Size;
   id?: string;
+  size?: Size;
   color?: Color;
   name?: string;
   video?: string;
-  fixedSize?: Size;
+  grows?: boolean;
   visible?: boolean;
   flexGrow?: number;
-  type: ElementTypes;
+  type?: ElementTypes;
   margin?: BoxSpacing;
   flexShrink?: number;
   padding?: BoxSpacing;

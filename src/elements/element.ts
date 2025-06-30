@@ -11,12 +11,12 @@ export const defaultElementType: ElementType = {
   color: defaultColor,
   name: "",
   video: "",
-  fixedSize: { width: 100, height: 100 },
+  size: { width: 100, height: 100 },
   visible: true,
   type: "element",
   margin: 0,
   padding: 0,
-  border: undefined,
+  border: { gap: 0, width: 0, color: [0, 0, 0, 0], style: "solid" },
   meta: {},
   position: { x: 0, y: 0 },
   borderRadius: {
@@ -37,6 +37,7 @@ export const defaultElementType: ElementType = {
   flexBasis: "auto",
   alignSelf: "flex-start",
   gap: 0,
+  grows: false,
   flexWrap: "wrap",
   alignItems: "stretch",
   flexDirection: "row",
@@ -50,6 +51,12 @@ export default class Element extends Node<ElementType> {
   constructor(value: Partial<ElementType>) {
     super({ ...defaultElementType, ...value });
     this.value = { ...defaultElementType, ...value };
+    const { top, left } = this.getMargin();
+    const borderWidth = this.getBorderWidth();
+    this.value.position = {
+      x: this.value.position!.x + left + borderWidth / 2,
+      y: this.value.position!.y + top + borderWidth / 2
+    };
   }
 
   public draw(_ctx: CanvasRenderingContext2D): void {
@@ -84,10 +91,9 @@ export default class Element extends Node<ElementType> {
 
   public getBoxModelSize(): { width: number; height: number } {
     // Content size (from fixedSize or min/max fallback)
-    const contentWidth =
-      this.value.fixedSize?.width ?? this.value.min?.width ?? 0;
+    const contentWidth = this.value.size?.width ?? this.value.min?.width ?? 0;
     const contentHeight =
-      this.value.fixedSize?.height ?? this.value.min?.height ?? 0;
+      this.value.size?.height ?? this.value.min?.height ?? 0;
 
     const padding = this.getPadding();
     const margin = this.getMargin();
@@ -123,8 +129,8 @@ export default class Element extends Node<ElementType> {
     const borderWidth = this.getBorderWidth();
 
     return {
-      x: padding.left + margin.left + borderWidth,
-      y: padding.top + margin.top + borderWidth
+      x: padding.left + margin.left + borderWidth / 2,
+      y: padding.top + margin.top + borderWidth / 2
     };
   }
 }
