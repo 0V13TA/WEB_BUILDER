@@ -15,11 +15,18 @@ function init() {
   canvas.height = innerHeight * ratio;
 
   const flexValue: ElementType = {
-    margin: 0,
+    margin: 2,
     padding: 0,
     background: {
-      color: [255, 10, 10, 1]
-    }
+      color: [255, 0, 0, 1]
+    },
+    border: {
+      width: 5,
+      color: [0, 200, 0, 1],
+      style: "solid",
+      gap: 5
+    },
+    borderRadius: 10
   };
 
   //

@@ -85,6 +85,7 @@ export type ElementType = {
   max?: Size;
   id?: string;
   size?: Size;
+  gap?: number;
   color?: Color;
   name?: string;
   video?: string;
@@ -94,27 +95,21 @@ export type ElementType = {
   type?: ElementTypes;
   margin?: BoxSpacing;
   flexShrink?: number;
+  flexWrap?: FlexWrap;
   padding?: BoxSpacing;
   border?: BorderStyle;
   alignSelf?: AlignItems;
+  alignItems?: AlignItems;
+  borderRadius?: BoxSpacing;
   meta?: Record<string, any>;
   flexBasis?: number | "auto";
-  flexDirection?: FlexDirection;
-  flexWrap?: FlexWrap;
-  justifyContent?: JustifyContent;
-  alignItems?: AlignItems;
   alignContent?: AlignContent;
-  gap?: number;
+  flexDirection?: FlexDirection;
+  justifyContent?: JustifyContent;
 
   position?: {
     x: number;
     y: number;
-  };
-  borderRadius?: {
-    topLeft: number;
-    topRight: number;
-    bottomLeft: number;
-    bottomRight: number;
   };
   background: {
     color: Color;

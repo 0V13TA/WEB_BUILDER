@@ -1,3 +1,4 @@
+import parseBorderRadius from "../utils/parseBorderRadii";
 import { parseBoxSpacing } from "../utils/parseBoxSpacing";
 import { Node } from "../utils/tree/node";
 import type { ElementType } from "../utils/types";
@@ -19,12 +20,7 @@ export const defaultElementType: ElementType = {
   border: { gap: 0, width: 0, color: [0, 0, 0, 0], style: "solid" },
   meta: {},
   position: { x: 0, y: 0 },
-  borderRadius: {
-    topLeft: 0,
-    topRight: 0,
-    bottomLeft: 0,
-    bottomRight: 0
-  },
+  borderRadius: undefined,
   background: {
     color: [255, 255, 255, 1],
     imageSize: undefined,
@@ -117,6 +113,34 @@ export default class Element extends Node<ElementType> {
       margin.bottom;
 
     return { width, height };
+  }
+
+  protected drawRoundedRect(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ) {
+    let radius = parseBorderRadius(this.value.borderRadius);
+    console.log(radius);
+    ctx.beginPath();
+
+    ctx.moveTo(x + radius.topLeft, y);
+    ctx.lineTo(x + width - radius.topRight, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius.topRight);
+    ctx.lineTo(x + width, y + height - radius.bottomRight);
+    ctx.quadraticCurveTo(
+      x + width,
+      y + height,
+      x + width - radius.bottomRight,
+      y + height
+    );
+    ctx.lineTo(x + radius.bottomLeft, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bottomLeft);
+    ctx.lineTo(x, y + radius.topLeft);
+    ctx.quadraticCurveTo(x, y, x + radius.topLeft, y);
+    ctx.closePath();
   }
 
   protected getBorderWidth(): number {
