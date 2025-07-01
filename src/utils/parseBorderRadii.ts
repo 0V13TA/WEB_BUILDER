@@ -61,8 +61,8 @@ export default function parseBorderRadius(
       return {
         topLeft,
         topRight,
-        bottomLeft: bottomLeft,
-        bottomRight: topRight
+        bottomLeft: topRight,
+        bottomRight: bottomLeft
       };
     default:
       return {

@@ -4,13 +4,15 @@ import type { ElementType } from "./utils/types";
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 document.body.append(canvas);
+const ratio = 0.997;
+canvas.width = innerWidth * ratio;
+canvas.height = innerHeight * ratio;
 
 addEventListener("load", init);
 addEventListener("resize", init);
 
 function init() {
   // Resize the canvas
-  const ratio = 0.99;
   canvas.width = innerWidth * ratio;
   canvas.height = innerHeight * ratio;
 
@@ -26,7 +28,7 @@ function init() {
       style: "solid",
       gap: 5
     },
-    borderRadius: 10
+    borderRadius: [10, 0, 10]
   };
 
   //
