@@ -157,4 +157,64 @@ export default class Element extends Node<ElementType> {
       y: padding.top + margin.top + borderWidth / 2
     };
   }
+
+  protected getGlobalBounds(): {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } {
+    const { left, top } = this.getPadding();
+    const x = this.value.position?.x! + left;
+    const y = this.value.position?.y! + top;
+    const width = this.value.size?.width!;
+    const height = this.value.size?.height!;
+
+    return { x, width, y, height };
+  }
+
+  public handleEvent(e: MouseEvent | WheelEvent): boolean {
+    const bounds = this.getGlobalBounds();
+
+    if (this.value.hidden) return false;
+
+    const withinX =
+      e.clientX >= bounds.x && e.clientX <= bounds.x + bounds.width;
+    const withinY =
+      e.clientY >= bounds.y && e.clientY <= bounds.y + bounds.height;
+    const withinBounds = withinX && withinY;
+
+    const children = this.getChildren();
+    for (const child of children) {
+      if (child.handleEvent(e)) return true;
+    }
+
+    if (e instanceof WheelEvent && withinBounds) {
+      const self = this.getScrollableInfo();
+
+      if (self) {
+        self.scrollX += e.deltaX;
+        self.scrollY += e.deltaY;
+
+        const maxX = self.scrollBounds.width - (self.value.size?.width ?? 0);
+        const maxY = self.scrollBounds.height - (self.value.size?.height ?? 0);
+
+        self.scrollX = Math.max(0, Math.min(maxX, self.scrollX));
+        self.scrollY = Math.max(0, Math.min(maxY, self.scrollY));
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public getScrollableInfo(): {
+    scrollX: number;
+    scrollY: number;
+    scrollBounds: { width: number; height: number };
+    value: { size?: { width: number; height: number } };
+  } | null {
+    return null;
+  }
 }

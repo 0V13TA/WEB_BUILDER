@@ -40,7 +40,7 @@ export type AlignContent =
   | "space-between"
   | "space-around";
 
-export type Color = [r: number, g: number, b: number, a: number];
+export type Color = readonly [r: number, g: number, b: number, a: number];
 export type Size = { width?: number; height?: number };
 
 export type BorderStyle = {
@@ -90,6 +90,7 @@ export type ElementType = {
   name?: string;
   video?: string;
   grows?: boolean;
+  hidden?: boolean;
   visible?: boolean;
   flexGrow?: number;
   type?: ElementTypes;
