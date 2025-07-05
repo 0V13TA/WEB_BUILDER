@@ -19,26 +19,7 @@ export type GradientDirection =
 // In your types.ts
 export type FlexDirection = "row" | "row-reverse" | "column" | "column-reverse";
 export type FlexWrap = "nowrap" | "wrap" | "wrap-reverse";
-export type JustifyContent =
-  | "flex-start"
-  | "flex-end"
-  | "center"
-  | "space-between"
-  | "space-around"
-  | "space-evenly";
-export type AlignItems =
-  | "flex-start"
-  | "flex-end"
-  | "center"
-  | "stretch"
-  | "baseline";
-export type AlignContent =
-  | "flex-start"
-  | "flex-end"
-  | "center"
-  | "stretch"
-  | "space-between"
-  | "space-around";
+export type Align = "left" | "right" | "center";
 
 export type Color = readonly [r: number, g: number, b: number, a: number];
 export type Size = { width?: number; height?: number };
@@ -89,27 +70,25 @@ export type ElementType = {
   color?: Color;
   name?: string;
   video?: string;
+  alignX?: Align;
+  alignY?: Align;
   grows?: boolean;
   scrollX?: number;
   scrollY?: number;
   hidden?: boolean;
   visible?: boolean;
   flexGrow?: number;
-  scrollable?: boolean;
   type?: ElementTypes;
   margin?: BoxSpacing;
   flexShrink?: number;
   flexWrap?: FlexWrap;
+  scrollable?: boolean;
   padding?: BoxSpacing;
   border?: BorderStyle;
-  alignSelf?: AlignItems;
-  alignItems?: AlignItems;
   borderRadius?: BoxSpacing;
   meta?: Record<string, any>;
   flexBasis?: number | "auto";
-  alignContent?: AlignContent;
   flexDirection?: FlexDirection;
-  justifyContent?: JustifyContent;
   scrollBounds?: { width: number; height: number };
 
   position?: {

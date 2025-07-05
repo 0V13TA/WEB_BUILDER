@@ -10,7 +10,11 @@ export default class FlexContainer extends Element {
   public draw(_ctx: CanvasRenderingContext2D): void {
     if (this.value.grows) {
       const { width, height } = this.getChildrenSizes();
-      this.value.size = { width, height };
+
+      this.value.size = {
+        width: Math.min(this.value.max?.width!, width),
+        height: Math.min(this.value.max?.height!, height)
+      };
     }
 
     _ctx.save();
@@ -146,11 +150,38 @@ export default class FlexContainer extends Element {
     return { width, height };
   }
 
-  private horizontalAlign(ctx: CanvasRenderingContext2D) {
-    const { x, y } = this.getBoxModelOffset();
+  private getChildrenSizesRow() {
+    let offsetX = 0;
+    let counter = 0;
+    let accumulator = 0;
+    const rows: number[] = [];
     const children = this.getChildren();
+
+    for (const child of children) {
+      offsetX += child.value.size?.width!;
+      rows[accumulator] = offsetX;
+      counter++;
+
+      if (offsetX + child.value.size?.width! > this.value.size?.width!) {
+        rows[accumulator] += this.value.gap! * (counter - 1);
+        accumulator++;
+        offsetX = 0;
+        counter = 0;
+      }
+    }
+
+    return rows;
+  }
+
+  private getChildrenSizesColumn() {}
+
+  private horizontalAlign(ctx: CanvasRenderingContext2D) {
+    let counter = 0;
+    const children = this.getChildren();
+    const { x, y } = this.getBoxModelOffset();
     let offsetX = this.value.position!.x + x,
       offsetY = this.value.position!.y + y;
+    const childrenRows = this.getChildrenSizesRow();
 
     for (const child of children) {
       const { width } = child.getBoxModelSize();
@@ -158,15 +189,21 @@ export default class FlexContainer extends Element {
       if (
         this.value.flexWrap &&
         this.value.flexWrap != "nowrap" &&
-        offsetX + child.value.size?.width! >
-          this.value.size?.width!
+        offsetX + child.value.size?.width! > this.value.size?.width!
       ) {
         offsetX = this.value.position!.x + x;
         offsetY += child.value.size?.height! + this.value.gap!;
-        console.log("here");
+        counter++;
       }
 
-      child.value.position = { x: offsetX, y: offsetY };
+      let difference = 0;
+
+      if (this.value.alignX === "center")
+        difference = (this.value.size?.width! - childrenRows[counter]) / 2;
+      else if (this.value.alignX === "right")
+        difference = this.value.size?.width! - childrenRows[counter];
+
+      child.value.position = { x: difference + offsetX, y: offsetY };
       child.draw(ctx);
       offsetX += width + this.value.gap!;
     }

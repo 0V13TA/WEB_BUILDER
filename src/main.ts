@@ -18,63 +18,55 @@ function init() {
   canvas.height = innerHeight * ratio;
 
   const flexValue: ElementType = {
+    gap: 5,
     margin: 0,
     padding: 0,
-    size: { width: canvas.width, height: canvas.height },
-    background: {
-      color: colorMap.chocolate
-    },
-    gap: 5,
     grows: false,
     scrollable: true,
-    flexWrap: "wrap"
+    flexWrap: "wrap",
+    alignX: "center",
+    background: { color: colorMap.chocolate },
+    size: { width: canvas.width, height: canvas.height }
   };
 
   const child: ElementType = {
-    background: {
-      color: colorMap.black
-    },
-    size: {
-      width: 100,
-      height: 100
-    },
-    margin: 0
+    margin: 0,
+    size: { width: 100, height: 100 },
+    background: { color: colorMap.black }
   };
 
   const child1: ElementType = {
-    background: {
-      color: colorMap.blue
-    },
-    size: {
-      width: 100,
-      height: 100
-    },
-    margin: 0
+    margin: 0,
+    size: { width: 100, height: 100 },
+    background: { color: colorMap.blue }
   };
 
   const child2: ElementType = {
-    background: {
-      color: colorMap.blanchedalmond
-    },
-    size: {
-      width: 100,
-      height: 100
-    },
-    margin: 0
+    margin: 0,
+    size: { width: 100, height: 100 },
+    background: { color: colorMap.blanchedalmond }
   };
 
   //
   const flexBox = new FlexContainer(flexValue);
+  const childFlex = new FlexContainer(child);
+  const child1Flex = new FlexContainer(child1);
+  const child2Flex = new FlexContainer(child2);
+  const children = [
+    child1Flex,
+    child2Flex,
+    childFlex,
+    child1Flex,
+    child2Flex,
+    childFlex,
+    child1Flex,
+    child2Flex,
+    childFlex,
+    child1Flex
+  ];
 
-  for (let i = 0; i < 4; i++) {
-    const childFlex = new FlexContainer(child);
-    flexBox.addChild(childFlex);
-
-    const child1Flex = new FlexContainer(child1);
-    flexBox.addChild(child1Flex);
-
-    const child2Flex = new FlexContainer(child2);
-    flexBox.addChild(child2Flex);
+  for (const child of children) {
+    flexBox.addChild(child);
   }
 
   flexBox.draw(ctx);

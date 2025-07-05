@@ -1,48 +1,47 @@
-import parseBorderRadius from "../utils/parseBorderRadii";
-import { parseBoxSpacing } from "../utils/parseBoxSpacing";
 import { Node } from "../utils/tree/node";
 import type { ElementType } from "../utils/types";
+import parseBorderRadius from "../utils/parseBorderRadii";
+import { parseBoxSpacing } from "../utils/parseBoxSpacing";
 
 const defaultColor: [number, number, number, number] = [0, 0, 0, 1];
 
 export const defaultElementType: ElementType = {
-  min: { width: 0, height: 0 },
-  max: { width: Infinity, height: Infinity },
+  gap: 0,
   id: "",
-  color: defaultColor,
+  meta: {},
   name: "",
   video: "",
-  size: { width: 100, height: 100 },
-  visible: true,
-  type: "element",
   margin: 0,
+  scrollX: 0,
   padding: 0,
-  border: { gap: 0, width: 0, color: [0, 0, 0, 0], style: "solid" },
-  meta: {},
-  position: { x: 0, y: 0 },
+  scrollY: 0,
+  flexGrow: 0,
+  grows: false,
+  flexShrink: 0,
+  visible: true,
+  alignY: "left",
+  alignX: "left",
+  type: "element",
+  flexWrap: "wrap",
+  scrollable: false,
+  flexBasis: "auto",
+  color: defaultColor,
+  flexDirection: "row",
   borderRadius: undefined,
+  position: { x: 0, y: 0 },
+  min: { width: 0, height: 0 },
+  size: { width: 100, height: 100 },
+  scrollBounds: { width: 0, height: 0 },
+  max: { width: Infinity, height: Infinity },
+  border: { gap: 0, width: 0, color: [0, 0, 0, 0], style: "solid" },
+
   background: {
-    color: [255, 255, 255, 1],
-    imageSize: undefined,
     imageSrc: undefined,
+    imageSize: undefined,
+    color: [255, 255, 255, 1],
     linearGradient: undefined,
     radialGradient: undefined
-  },
-  flexGrow: 0,
-  flexShrink: 0,
-  flexBasis: "auto",
-  alignSelf: "flex-start",
-  gap: 0,
-  grows: false,
-  flexWrap: "wrap",
-  alignItems: "stretch",
-  flexDirection: "row",
-  alignContent: "stretch",
-  justifyContent: "flex-start",
-  scrollX: 0,
-  scrollY: 0,
-  scrollBounds: { width: 0, height: 0 },
-  scrollable: false
+  }
 };
 
 export default class Element extends Node<ElementType> {
