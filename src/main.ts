@@ -18,42 +18,64 @@ function init() {
   canvas.height = innerHeight * ratio;
 
   const flexValue: ElementType = {
-    margin: [10, 2],
-    padding: 20,
+    margin: 0,
+    padding: 0,
+    size: { width: canvas.width, height: canvas.height },
     background: {
       color: colorMap.chocolate
     },
-    border: {
-      width: 6,
-      color: colorMap.darkkhaki,
-      style: "solid",
-      gap: 5
-    },
-    gap: 10,
-    grows: true
+    gap: 5,
+    grows: false,
+    scrollable: true,
+    flexWrap: "wrap"
   };
 
   const child: ElementType = {
     background: {
-      color: colorMap.gainsboro
+      color: colorMap.black
     },
     size: {
-      width: 200,
-      height: 200
+      width: 100,
+      height: 100
     },
-    margin: 20
+    margin: 0
+  };
+
+  const child1: ElementType = {
+    background: {
+      color: colorMap.blue
+    },
+    size: {
+      width: 100,
+      height: 100
+    },
+    margin: 0
+  };
+
+  const child2: ElementType = {
+    background: {
+      color: colorMap.blanchedalmond
+    },
+    size: {
+      width: 100,
+      height: 100
+    },
+    margin: 0
   };
 
   //
   const flexBox = new FlexContainer(flexValue);
-  canvas.addEventListener("wheel", (e) => {
-    flexBox.handleEvent(e);
-    console.log("Moving");
-  });
 
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < 4; i++) {
     const childFlex = new FlexContainer(child);
     flexBox.addChild(childFlex);
+
+    const child1Flex = new FlexContainer(child1);
+    flexBox.addChild(child1Flex);
+
+    const child2Flex = new FlexContainer(child2);
+    flexBox.addChild(child2Flex);
   }
+
   flexBox.draw(ctx);
 }

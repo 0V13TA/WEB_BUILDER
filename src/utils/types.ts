@@ -90,9 +90,12 @@ export type ElementType = {
   name?: string;
   video?: string;
   grows?: boolean;
+  scrollX?: number;
+  scrollY?: number;
   hidden?: boolean;
   visible?: boolean;
   flexGrow?: number;
+  scrollable?: boolean;
   type?: ElementTypes;
   margin?: BoxSpacing;
   flexShrink?: number;
@@ -107,6 +110,7 @@ export type ElementType = {
   alignContent?: AlignContent;
   flexDirection?: FlexDirection;
   justifyContent?: JustifyContent;
+  scrollBounds?: { width: number; height: number };
 
   position?: {
     x: number;

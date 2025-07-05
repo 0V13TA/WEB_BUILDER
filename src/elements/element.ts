@@ -38,7 +38,11 @@ export const defaultElementType: ElementType = {
   alignItems: "stretch",
   flexDirection: "row",
   alignContent: "stretch",
-  justifyContent: "flex-start"
+  justifyContent: "flex-start",
+  scrollX: 0,
+  scrollY: 0,
+  scrollBounds: { width: 0, height: 0 },
+  scrollable: false
 };
 
 export default class Element extends Node<ElementType> {
@@ -87,15 +91,14 @@ export default class Element extends Node<ElementType> {
 
   public getBoxModelSize(): { width: number; height: number } {
     // Content size (from fixedSize or min/max fallback)
-    const contentWidth = this.value.size?.width ?? this.value.min?.width ?? 0;
     const contentHeight =
       this.value.size?.height ?? this.value.min?.height ?? 0;
+    const contentWidth = this.value.size?.width ?? this.value.min?.width ?? 0;
 
-    const padding = this.getPadding();
     const margin = this.getMargin();
+    const padding = this.getPadding();
     const borderWidth = this.getBorderWidth();
 
-    // Total size = content + padding (both sides) + border (both sides) + margin (both sides)
     const width =
       contentWidth +
       padding.left +
@@ -123,7 +126,6 @@ export default class Element extends Node<ElementType> {
     height: number
   ) {
     let radius = parseBorderRadius(this.value.borderRadius);
-    console.log(radius);
     ctx.beginPath();
 
     ctx.moveTo(x + radius.topLeft, y);
@@ -148,8 +150,8 @@ export default class Element extends Node<ElementType> {
   }
 
   protected getBoxModelOffset(): { x: number; y: number } {
-    const padding = this.getPadding();
     const margin = this.getMargin();
+    const padding = this.getPadding();
     const borderWidth = this.getBorderWidth();
 
     return {
@@ -173,48 +175,7 @@ export default class Element extends Node<ElementType> {
     return { x, width, y, height };
   }
 
-  public handleEvent(e: MouseEvent | WheelEvent): boolean {
-    const bounds = this.getGlobalBounds();
-
-    if (this.value.hidden) return false;
-
-    const withinX =
-      e.clientX >= bounds.x && e.clientX <= bounds.x + bounds.width;
-    const withinY =
-      e.clientY >= bounds.y && e.clientY <= bounds.y + bounds.height;
-    const withinBounds = withinX && withinY;
-
-    const children = this.getChildren();
-    for (const child of children) {
-      if (child.handleEvent(e)) return true;
-    }
-
-    if (e instanceof WheelEvent && withinBounds) {
-      const self = this.getScrollableInfo();
-
-      if (self) {
-        self.scrollX += e.deltaX;
-        self.scrollY += e.deltaY;
-
-        const maxX = self.scrollBounds.width - (self.value.size?.width ?? 0);
-        const maxY = self.scrollBounds.height - (self.value.size?.height ?? 0);
-
-        self.scrollX = Math.max(0, Math.min(maxX, self.scrollX));
-        self.scrollY = Math.max(0, Math.min(maxY, self.scrollY));
-
-        return true;
-      }
-    }
-
+  public isScrollable(): boolean {
     return false;
-  }
-
-  public getScrollableInfo(): {
-    scrollX: number;
-    scrollY: number;
-    scrollBounds: { width: number; height: number };
-    value: { size?: { width: number; height: number } };
-  } | null {
-    return null;
   }
 }
