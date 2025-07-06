@@ -17,15 +17,18 @@ function init() {
   canvas.width = innerWidth * ratio;
   canvas.height = innerHeight * ratio;
 
+  //
+
   const flexValue: ElementType = {
     gap: 5,
     margin: 0,
     padding: 0,
     grows: false,
-    scrollable: true,
-    flexWrap: "wrap",
     alignX: "center",
-    background: { color: colorMap.chocolate },
+    flexWrap: "wrap",
+    scrollable: true,
+    alignY: "bottom",
+    background: { color: colorMap.aquamarine },
     size: { width: canvas.width, height: canvas.height }
   };
 
@@ -38,7 +41,7 @@ function init() {
   const child1: ElementType = {
     margin: 0,
     size: { width: 100, height: 100 },
-    background: { color: colorMap.blue }
+    background: { color: colorMap.burlywood }
   };
 
   const child2: ElementType = {
@@ -47,11 +50,13 @@ function init() {
     background: { color: colorMap.blanchedalmond }
   };
 
-  //
   const flexBox = new FlexContainer(flexValue);
   const childFlex = new FlexContainer(child);
   const child1Flex = new FlexContainer(child1);
   const child2Flex = new FlexContainer(child2);
+
+  //
+
   const children = [
     child1Flex,
     child2Flex,

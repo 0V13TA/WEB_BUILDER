@@ -151,29 +151,27 @@ export default class FlexContainer extends Element {
   }
 
   private getChildrenSizesRow() {
-    let offsetX = 0;
+    let offset = 0;
     let counter = 0;
     let accumulator = 0;
     const rows: number[] = [];
     const children = this.getChildren();
 
     for (const child of children) {
-      offsetX += child.value.size?.width!;
-      rows[accumulator] = offsetX;
+      offset += child.value.size?.width!;
+      rows[accumulator] = offset;
       counter++;
 
-      if (offsetX + child.value.size?.width! > this.value.size?.width!) {
+      if (offset + child.value.size?.width! > this.value.size?.width!) {
         rows[accumulator] += this.value.gap! * (counter - 1);
         accumulator++;
-        offsetX = 0;
+        offset = 0;
         counter = 0;
       }
     }
 
     return rows;
   }
-
-  private getChildrenSizesColumn() {}
 
   private horizontalAlign(ctx: CanvasRenderingContext2D) {
     let counter = 0;
@@ -183,28 +181,50 @@ export default class FlexContainer extends Element {
       offsetY = this.value.position!.y + y;
     const childrenRows = this.getChildrenSizesRow();
 
-    for (const child of children) {
-      const { width } = child.getBoxModelSize();
+    let differenceX: number;
+
+    for (const child in children) {
+      const width =
+        child === "0"
+          ? children[0].getBoxModelSize().width
+          : children[Number(child) - 1].getBoxModelSize().width;
 
       if (
         this.value.flexWrap &&
         this.value.flexWrap != "nowrap" &&
-        offsetX + child.value.size?.width! > this.value.size?.width!
+        offsetX + children[child].value.size?.width! > this.value.size?.width!
       ) {
-        offsetX = this.value.position!.x + x;
-        offsetY += child.value.size?.height! + this.value.gap!;
         counter++;
+        offsetX = this.value.position!.x + x;
+        offsetY += children[child].value.size?.height! + this.value.gap!;
       }
 
-      let difference = 0;
+      switch (this.value.alignX) {
+        case "center":
+          differenceX = (this.value.size?.width! - childrenRows[counter]) / 2;
+          break;
+        case "left":
+          differenceX = 0;
+          break;
+        case "right":
+          differenceX = this.value.size?.width! - childrenRows[counter];
+          break;
+        default:
+          differenceX = 0;
+          console.warn(
+            `alignment: invalid value ${
+              this.value.alignX
+            }. The value should be (left, right or center) instead the value is ${
+              this.value.alignX
+            }\n The value will default to alingment left. ${new Error().stack}`
+          );
+      }
 
-      if (this.value.alignX === "center")
-        difference = (this.value.size?.width! - childrenRows[counter]) / 2;
-      else if (this.value.alignX === "right")
-        difference = this.value.size?.width! - childrenRows[counter];
-
-      child.value.position = { x: difference + offsetX, y: offsetY };
-      child.draw(ctx);
+      children[child].value.position = {
+        x: differenceX + offsetX,
+        y: offsetY
+      };
+      children[child].draw(ctx);
       offsetX += width + this.value.gap!;
     }
   }

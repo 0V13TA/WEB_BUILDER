@@ -19,7 +19,8 @@ export type GradientDirection =
 // In your types.ts
 export type FlexDirection = "row" | "row-reverse" | "column" | "column-reverse";
 export type FlexWrap = "nowrap" | "wrap" | "wrap-reverse";
-export type Align = "left" | "right" | "center";
+export type AlignX = "left" | "right" | "center";
+export type AlignY = "bottom" | "top" | "center";
 
 export type Color = readonly [r: number, g: number, b: number, a: number];
 export type Size = { width?: number; height?: number };
@@ -70,8 +71,8 @@ export type ElementType = {
   color?: Color;
   name?: string;
   video?: string;
-  alignX?: Align;
-  alignY?: Align;
+  alignX?: AlignX;
+  alignY?: AlignY;
   grows?: boolean;
   scrollX?: number;
   scrollY?: number;

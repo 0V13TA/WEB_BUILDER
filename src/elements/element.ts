@@ -19,7 +19,7 @@ export const defaultElementType: ElementType = {
   grows: false,
   flexShrink: 0,
   visible: true,
-  alignY: "left",
+  alignY: "top",
   alignX: "left",
   type: "element",
   flexWrap: "wrap",
