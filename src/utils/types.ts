@@ -1,7 +1,7 @@
 export type FlexWrap = "nowrap" | "wrap" | "wrap-reverse";
 export type Size = { width?: number; height?: number };
 export type Color = readonly [r: number, g: number, b: number, a: number];
-export type FlexDirection = "row" | "row-reverse" | "column" | "column-reverse";
+export type FlexDirection = "row" | "column";
 
 export type ElementTypes =
   | "box"
@@ -21,12 +21,12 @@ export type GradientDirection =
   | "left"
   | "right";
 
-export type Align = "top" | "center" | "bottom";
+export type Align = "start" | "center" | "end";
 
 export type Justify =
-  | "left"
-  | "right"
+  | "start"
   | "center"
+  | "end"
   | "space-between"
   | "space-around"
   | "space-evenly";

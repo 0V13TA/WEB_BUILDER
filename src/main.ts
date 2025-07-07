@@ -23,11 +23,12 @@ function init() {
     gap: 5,
     margin: 0,
     padding: 0,
-    align: "top",
+    align: "center",
     grows: false,
     flexWrap: "wrap",
     scrollable: true,
-    justify: "center",
+    justify: "end",
+    flexDirection: "column",
     background: { color: colorMap.aquamarine },
     size: { width: canvas.width, height: canvas.height }
   };

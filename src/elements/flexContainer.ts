@@ -21,7 +21,16 @@ export default class FlexContainer extends Element {
     this.drawPadding(_ctx);
     this.drawContent(_ctx);
     _ctx.translate(this.value.scrollX!, this.value.scrollY!);
-    this.horizontalAlign(_ctx);
+    switch (this.value.flexDirection) {
+      case "column":
+        this.verticalAlign(_ctx);
+        break;
+      case "row":
+        this.horizontalAlign(_ctx);
+        break;
+      default:
+        this.horizontalAlign(_ctx);
+    }
     _ctx.clip();
 
     _ctx.restore();
@@ -183,9 +192,45 @@ export default class FlexContainer extends Element {
       rows.push(currentRow);
     }
 
-    console.log(rows);
-
     return rows;
+  }
+
+  private getChildrenSizesColumn(): Element[][] {
+    const column: Element[][] = [];
+    let currentColumn: Element[] = [];
+    let currentHeight = 0;
+
+    const children = this.getChildren();
+    const containerHeight = this.value.size?.height ?? Infinity;
+    const gap = this.value.gap ?? 0;
+
+    for (const child of children) {
+      const childHeight = child.getBoxModelSize().height;
+
+      const totalHeight =
+        currentColumn.length > 0
+          ? currentHeight + gap + childHeight
+          : childHeight;
+
+      if (
+        this.value.flexWrap === "wrap" &&
+        totalHeight > containerHeight &&
+        currentColumn.length > 0
+      ) {
+        column.push(currentColumn);
+        currentColumn = [child];
+        currentHeight = childHeight;
+      } else {
+        currentColumn.push(child);
+        currentHeight = totalHeight;
+      }
+    }
+
+    if (currentColumn.length > 0) {
+      column.push(currentColumn);
+    }
+
+    return column;
   }
 
   private horizontalAlign(ctx: CanvasRenderingContext2D) {
@@ -196,8 +241,8 @@ export default class FlexContainer extends Element {
 
     let offsetY = this.value.position!.y + y - this.value.scrollY!;
 
+    // Calculate total content height for vertical alignment
     let contentHeight = 0;
-
     for (const row of rows) {
       let maxHeight = 0;
       for (const child of row) {
@@ -205,85 +250,68 @@ export default class FlexContainer extends Element {
       }
       contentHeight += maxHeight;
     }
+    contentHeight += gap * (rows.length - 1);
 
-    const verticalGap = this.value.gap ?? 0;
-    const totalGapHeight = verticalGap * (rows.length - 1);
-    contentHeight += totalGapHeight;
-
-    const containerHeight = this.value.size?.height ?? Infinity;
-    const spaceLeftY = containerHeight - contentHeight;
-
+    // Apply vertical alignment
+    const spaceLeftY = this.value.size?.height! - contentHeight;
     switch (this.value.align) {
       case "center":
         offsetY += spaceLeftY / 2;
         break;
-      case "bottom":
+      case "end":
         offsetY += spaceLeftY;
         break;
-      case "top":
-        break;
+      case "start":
       default:
-        console.warn(
-          `[Alignment Warning] Invalid value for "alignY": "${
-            this.value.justify
-          }" on element "${
-            this.value.id ?? this.value.name ?? "unknown"
-          }". Expected one of: "top", "center", "bottom", "space-between", "space-around", or "space-evenly". Defaulting to "top".\nStack Trace:\n${
-            new Error().stack
-          }`
-        );
         break;
     }
 
     for (const row of rows) {
-      let totalContentWidth = 0;
+      let totalRowWidth = 0;
       let rowHeight = 0;
 
+      // Calculate total width of all elements in row
       for (const child of row) {
         const size = child.getBoxModelSize();
-        totalContentWidth += size.width;
+        totalRowWidth += size.width;
         rowHeight = Math.max(rowHeight, size.height);
       }
 
-      const numGaps = row.length - 1;
-      totalContentWidth += gap * numGaps;
-      const spaceLeft = containerWidth - totalContentWidth;
+      const numGaps = row.length > 1 ? row.length - 1 : 0;
+      const totalGapsWidth = gap * numGaps;
+      const totalContentWidth = totalRowWidth + totalGapsWidth;
+      const availableSpace = containerWidth - totalContentWidth;
+
       let offsetX = this.value.position!.x + x - this.value.scrollX!;
       let spacing = gap;
 
+      // Apply horizontal justification
       switch (this.value.justify) {
         case "center":
-          offsetX += spaceLeft / 2;
+          offsetX += availableSpace / 2;
           break;
-        case "right":
-          offsetX += spaceLeft;
+        case "end":
+          offsetX += availableSpace;
           break;
         case "space-between":
-          spacing = row.length > 1 ? spaceLeft / numGaps : 0;
+          if (row.length > 1) {
+            spacing = (containerWidth - totalRowWidth) / (row.length - 1);
+          }
           break;
         case "space-around":
-          spacing = spaceLeft / row.length;
+          spacing = (containerWidth - totalRowWidth) / row.length;
           offsetX += spacing / 2;
           break;
         case "space-evenly":
-          spacing = spaceLeft / (row.length + 1);
+          spacing = (containerWidth - totalRowWidth) / (row.length + 1);
           offsetX += spacing;
           break;
-        case "left":
-          break;
+        case "start":
         default:
-          console.warn(
-            `[Alignment Warning] Invalid value for "alignX": "${
-              this.value.align
-            }" on element "${
-              this.value.id ?? this.value.name ?? "unknown"
-            }". Expected one of: "left", "center", "right", "space-between", "space-around", or "space-evenly". Defaulting to "left".\nStack Trace:\n${
-              new Error().stack
-            }`
-          );
           break;
       }
 
+      // Position and draw each child in the row
       for (const child of row) {
         const size = child.getBoxModelSize();
         child.value.position = { x: offsetX, y: offsetY };
@@ -292,6 +320,98 @@ export default class FlexContainer extends Element {
       }
 
       offsetY += rowHeight + gap;
+    }
+  }
+
+  private verticalAlign(ctx: CanvasRenderingContext2D) {
+    const gap = this.value.gap ?? 0;
+    const { x, y } = this.getBoxModelOffset();
+    const columns = this.getChildrenSizesColumn();
+    const containerWidth = this.value.size?.width ?? Infinity;
+    const containerHeight = this.value.size?.height ?? Infinity;
+
+    let offsetX = this.value.position!.x + x - this.value.scrollX!;
+
+    // Calculate total content width for horizontal alignment
+    let contentWidth = 0;
+    for (const column of columns) {
+      let maxWidth = 0;
+      for (const child of column) {
+        maxWidth = Math.max(maxWidth, child.getBoxModelSize().width);
+      }
+      contentWidth += maxWidth;
+    }
+    contentWidth += gap * (columns.length - 1);
+
+    // Apply horizontal alignment
+    const spaceLeftX = containerWidth - contentWidth;
+    switch (this.value.align) {
+      case "center":
+        offsetX += spaceLeftX / 2;
+        break;
+      case "end":
+        offsetX += spaceLeftX;
+        break;
+      case "start":
+      default:
+        break;
+    }
+
+    for (const column of columns) {
+      let totalColumnHeight = 0;
+      let columnWidth = 0;
+
+      // Calculate total height of all elements in column
+      for (const child of column) {
+        const size = child.getBoxModelSize();
+        totalColumnHeight += size.height;
+        columnWidth = Math.max(columnWidth, size.width);
+      }
+
+      const numGaps = column.length > 1 ? column.length - 1 : 0;
+      const totalGapsHeight = gap * numGaps;
+      const totalContentHeight = totalColumnHeight + totalGapsHeight;
+      const availableSpace = containerHeight - totalContentHeight;
+
+      let offsetY = this.value.position!.y + y - this.value.scrollY!;
+      let spacing = gap;
+
+      // Apply vertical justification
+      switch (this.value.justify) {
+        case "center":
+          offsetY += availableSpace / 2;
+          break;
+        case "end":
+          offsetY += availableSpace;
+          break;
+        case "space-between":
+          if (column.length > 1) {
+            spacing =
+              (containerHeight - totalColumnHeight) / (column.length - 1);
+          }
+          break;
+        case "space-around":
+          spacing = (containerHeight - totalColumnHeight) / column.length;
+          offsetY += spacing / 2;
+          break;
+        case "space-evenly":
+          spacing = (containerHeight - totalColumnHeight) / (column.length + 1);
+          offsetY += spacing;
+          break;
+        case "start":
+        default:
+          break;
+      }
+
+      // Position and draw each child in the column
+      for (const child of column) {
+        const size = child.getBoxModelSize();
+        child.value.position = { x: offsetX, y: offsetY };
+        child.draw(ctx);
+        offsetY += size.height + spacing;
+      }
+
+      offsetX += columnWidth + gap;
     }
   }
 
