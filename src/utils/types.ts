@@ -1,3 +1,8 @@
+export type FlexWrap = "nowrap" | "wrap" | "wrap-reverse";
+export type Size = { width?: number; height?: number };
+export type Color = readonly [r: number, g: number, b: number, a: number];
+export type FlexDirection = "row" | "row-reverse" | "column" | "column-reverse";
+
 export type ElementTypes =
   | "box"
   | "grid"
@@ -16,14 +21,15 @@ export type GradientDirection =
   | "left"
   | "right";
 
-// In your types.ts
-export type FlexDirection = "row" | "row-reverse" | "column" | "column-reverse";
-export type FlexWrap = "nowrap" | "wrap" | "wrap-reverse";
-export type AlignX = "left" | "right" | "center";
-export type AlignY = "bottom" | "top" | "center";
+export type Align = "top" | "center" | "bottom";
 
-export type Color = readonly [r: number, g: number, b: number, a: number];
-export type Size = { width?: number; height?: number };
+export type Justify =
+  | "left"
+  | "right"
+  | "center"
+  | "space-between"
+  | "space-around"
+  | "space-evenly";
 
 export type BorderStyle = {
   gap?: number;
@@ -34,7 +40,7 @@ export type BorderStyle = {
 
 export type GradientStop = {
   color: Color;
-  offset: number; // 0 to 1, where the stop is in the gradient
+  offset: number;
 };
 
 export type LinearGradient = {
@@ -43,9 +49,9 @@ export type LinearGradient = {
 };
 
 export type RadialGradient = {
-  radius: number; // normalized 0-1
+  radius: number;
   stops: GradientStop[];
-  center: { x: number; y: number }; // normalized 0-1
+  center: { x: number; y: number };
 };
 
 export type boxModelOffset = {
@@ -70,13 +76,13 @@ export type ElementType = {
   gap?: number;
   color?: Color;
   name?: string;
+  align?: Align;
   video?: string;
-  alignX?: AlignX;
-  alignY?: AlignY;
   grows?: boolean;
   scrollX?: number;
   scrollY?: number;
   hidden?: boolean;
+  justify?: Justify;
   visible?: boolean;
   flexGrow?: number;
   type?: ElementTypes;

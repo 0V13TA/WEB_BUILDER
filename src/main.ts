@@ -23,11 +23,11 @@ function init() {
     gap: 5,
     margin: 0,
     padding: 0,
+    align: "top",
     grows: false,
-    alignX: "center",
     flexWrap: "wrap",
     scrollable: true,
-    alignY: "bottom",
+    justify: "center",
     background: { color: colorMap.aquamarine },
     size: { width: canvas.width, height: canvas.height }
   };
@@ -35,7 +35,7 @@ function init() {
   const child: ElementType = {
     margin: 0,
     size: { width: 100, height: 100 },
-    background: { color: colorMap.black }
+    background: { color: colorMap.brown }
   };
 
   const child1: ElementType = {

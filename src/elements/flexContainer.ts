@@ -150,82 +150,148 @@ export default class FlexContainer extends Element {
     return { width, height };
   }
 
-  private getChildrenSizesRow() {
-    let offset = 0;
-    let counter = 0;
-    let accumulator = 0;
-    const rows: number[] = [];
+  private getChildrenSizesRow(): Element[][] {
+    const rows: Element[][] = [];
+    let currentRow: Element[] = [];
+    let currentWidth = 0;
+
     const children = this.getChildren();
+    const containerWidth = this.value.size?.width ?? Infinity;
+    const gap = this.value.gap ?? 0;
 
     for (const child of children) {
-      offset += child.value.size?.width!;
-      rows[accumulator] = offset;
-      counter++;
+      const childWidth = child.getBoxModelSize().width;
 
-      if (offset + child.value.size?.width! > this.value.size?.width!) {
-        rows[accumulator] += this.value.gap! * (counter - 1);
-        accumulator++;
-        offset = 0;
-        counter = 0;
+      const totalWidth =
+        currentRow.length > 0 ? currentWidth + gap + childWidth : childWidth;
+
+      if (
+        this.value.flexWrap === "wrap" &&
+        totalWidth > containerWidth &&
+        currentRow.length > 0
+      ) {
+        rows.push(currentRow);
+        currentRow = [child];
+        currentWidth = childWidth;
+      } else {
+        currentRow.push(child);
+        currentWidth = totalWidth;
       }
     }
+
+    if (currentRow.length > 0) {
+      rows.push(currentRow);
+    }
+
+    console.log(rows);
 
     return rows;
   }
 
   private horizontalAlign(ctx: CanvasRenderingContext2D) {
-    let counter = 0;
-    const children = this.getChildren();
     const { x, y } = this.getBoxModelOffset();
-    let offsetX = this.value.position!.x + x,
-      offsetY = this.value.position!.y + y;
-    const childrenRows = this.getChildrenSizesRow();
+    const rows = this.getChildrenSizesRow();
+    const gap = this.value.gap ?? 0;
+    const containerWidth = this.value.size?.width ?? Infinity;
 
-    let differenceX: number;
+    let offsetY = this.value.position!.y + y - this.value.scrollY!;
 
-    for (const child in children) {
-      const width =
-        child === "0"
-          ? children[0].getBoxModelSize().width
-          : children[Number(child) - 1].getBoxModelSize().width;
+    let contentHeight = 0;
 
-      if (
-        this.value.flexWrap &&
-        this.value.flexWrap != "nowrap" &&
-        offsetX + children[child].value.size?.width! > this.value.size?.width!
-      ) {
-        counter++;
-        offsetX = this.value.position!.x + x;
-        offsetY += children[child].value.size?.height! + this.value.gap!;
+    for (const row of rows) {
+      let maxHeight = 0;
+      for (const child of row) {
+        maxHeight = Math.max(maxHeight, child.getBoxModelSize().height);
+      }
+      contentHeight += maxHeight;
+    }
+
+    const verticalGap = this.value.gap ?? 0;
+    const totalGapHeight = verticalGap * (rows.length - 1);
+    contentHeight += totalGapHeight;
+
+    const containerHeight = this.value.size?.height ?? Infinity;
+    const spaceLeftY = containerHeight - contentHeight;
+
+    switch (this.value.align) {
+      case "center":
+        offsetY += spaceLeftY / 2;
+        break;
+      case "bottom":
+        offsetY += spaceLeftY;
+        break;
+      case "top":
+        break;
+      default:
+        console.warn(
+          `[Alignment Warning] Invalid value for "alignY": "${
+            this.value.justify
+          }" on element "${
+            this.value.id ?? this.value.name ?? "unknown"
+          }". Expected one of: "top", "center", "bottom", "space-between", "space-around", or "space-evenly". Defaulting to "top".\nStack Trace:\n${
+            new Error().stack
+          }`
+        );
+        break;
+    }
+
+    for (const row of rows) {
+      let totalContentWidth = 0;
+      let rowHeight = 0;
+
+      for (const child of row) {
+        const size = child.getBoxModelSize();
+        totalContentWidth += size.width;
+        rowHeight = Math.max(rowHeight, size.height);
       }
 
-      switch (this.value.alignX) {
+      const numGaps = row.length - 1;
+      totalContentWidth += gap * numGaps;
+      const spaceLeft = containerWidth - totalContentWidth;
+      let offsetX = this.value.position!.x + x - this.value.scrollX!;
+      let spacing = gap;
+
+      switch (this.value.justify) {
         case "center":
-          differenceX = (this.value.size?.width! - childrenRows[counter]) / 2;
-          break;
-        case "left":
-          differenceX = 0;
+          offsetX += spaceLeft / 2;
           break;
         case "right":
-          differenceX = this.value.size?.width! - childrenRows[counter];
+          offsetX += spaceLeft;
+          break;
+        case "space-between":
+          spacing = row.length > 1 ? spaceLeft / numGaps : 0;
+          break;
+        case "space-around":
+          spacing = spaceLeft / row.length;
+          offsetX += spacing / 2;
+          break;
+        case "space-evenly":
+          spacing = spaceLeft / (row.length + 1);
+          offsetX += spacing;
+          break;
+        case "left":
           break;
         default:
-          differenceX = 0;
           console.warn(
-            `alignment: invalid value ${
-              this.value.alignX
-            }. The value should be (left, right or center) instead the value is ${
-              this.value.alignX
-            }\n The value will default to alingment left. ${new Error().stack}`
+            `[Alignment Warning] Invalid value for "alignX": "${
+              this.value.align
+            }" on element "${
+              this.value.id ?? this.value.name ?? "unknown"
+            }". Expected one of: "left", "center", "right", "space-between", "space-around", or "space-evenly". Defaulting to "left".\nStack Trace:\n${
+              new Error().stack
+            }`
           );
+          break;
       }
 
-      children[child].value.position = {
-        x: differenceX + offsetX,
-        y: offsetY
-      };
-      children[child].draw(ctx);
-      offsetX += width + this.value.gap!;
+      for (const child of row) {
+        const size = child.getBoxModelSize();
+        child.value.position = { x: offsetX, y: offsetY };
+        child.draw(ctx);
+        offsetX += size.width + spacing;
+      }
+
+      offsetY += rowHeight + gap;
     }
   }
 
