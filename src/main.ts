@@ -23,12 +23,12 @@ function init() {
     gap: 5,
     margin: 0,
     padding: 0,
-    align: "center",
+    align: "start",
     grows: false,
     flexWrap: "wrap",
     scrollable: true,
-    justify: "end",
-    flexDirection: "column",
+    justify: "center",
+    flexDirection: "row",
     background: { color: colorMap.aquamarine },
     size: { width: canvas.width, height: canvas.height }
   };
@@ -40,6 +40,15 @@ function init() {
   };
 
   const child1: ElementType = {
+    min: { width: 10 },
+    margin: 0,
+    size: { width: 100, height: 100 },
+    background: { color: colorMap.burlywood }
+  };
+
+  const child3: ElementType = {
+    grows: true,
+    min: { width: 10 },
     margin: 0,
     size: { width: 100, height: 100 },
     background: { color: colorMap.burlywood }
@@ -55,11 +64,11 @@ function init() {
   const childFlex = new FlexContainer(child);
   const child1Flex = new FlexContainer(child1);
   const child2Flex = new FlexContainer(child2);
+  const child3Flex = new FlexContainer(child3);
 
   //
 
   const children = [
-    child1Flex,
     child2Flex,
     childFlex,
     child1Flex,
@@ -67,8 +76,10 @@ function init() {
     childFlex,
     child1Flex,
     child2Flex,
+    child1Flex,
+    child3Flex,
     childFlex,
-    child1Flex
+    child1Flex,
   ];
 
   for (const child of children) {

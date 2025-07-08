@@ -4,18 +4,18 @@ import { rgbaToHex } from "../utils/colorUtils";
 
 export default class FlexContainer extends Element {
   constructor(value: Partial<ElementType>) {
-    super({ ...value, type: "flexContainer" });
+    super({ ...value, type: "flexContainer", name: "flexContainer" });
   }
 
   public draw(_ctx: CanvasRenderingContext2D): void {
-    if (this.value.grows) {
-      const { width, height } = this.getChildrenSizes();
-
-      this.value.size = {
-        width: Math.min(this.value.max?.width!, width),
-        height: Math.min(this.value.max?.height!, height)
-      };
-    }
+    if ((this.value.fitHeight || this.value.fitWidth) && this.value.grows)
+      console.warn(
+        `[Layout Conflict] Element "${
+          this.value.name ?? this.value.id ?? "unknown"
+        }" has both "fixed: true" and "grows: true". Ignoring "grows".\nStack Trace:\n${
+          new Error().stack
+        }`
+      );
 
     _ctx.save();
     this.drawPadding(_ctx);
@@ -143,22 +143,6 @@ export default class FlexContainer extends Element {
     }
   }
 
-  private getChildrenSizes() {
-    let width = 0,
-      height = 0;
-    const children = this.getChildren();
-
-    for (const child of children) {
-      const size = child.getBoxModelSize();
-      width += size.width;
-      height = Math.max(size.height, height);
-    }
-
-    width += this.value.gap! * (children.length - 1);
-
-    return { width, height };
-  }
-
   private getChildrenSizesRow(): Element[][] {
     const rows: Element[][] = [];
     let currentRow: Element[] = [];
@@ -241,6 +225,8 @@ export default class FlexContainer extends Element {
 
     let offsetY = this.value.position!.y + y - this.value.scrollY!;
 
+    this.calculateGrowSize(rows, "horizontal");
+
     // Calculate total content height for vertical alignment
     let contentHeight = 0;
     for (const row of rows) {
@@ -262,7 +248,18 @@ export default class FlexContainer extends Element {
         offsetY += spaceLeftY;
         break;
       case "start":
+        break;
+      case undefined:
+        break;
       default:
+        console.warn(
+          `[Alignment Warning] Invalid value for "align": "${
+            this.value.align
+          }" on element "${this.value.id ?? this.value.name ?? "unknown"}". ` +
+            `Expected one of: "start", "center", or "end". Defaulting to "start".\nStack Trace:\n${
+              new Error().stack
+            }`
+        );
         break;
     }
 
@@ -331,6 +328,8 @@ export default class FlexContainer extends Element {
     const containerHeight = this.value.size?.height ?? Infinity;
 
     let offsetX = this.value.position!.x + x - this.value.scrollX!;
+
+    this.calculateGrowSize(columns, "vertical");
 
     // Calculate total content width for horizontal alignment
     let contentWidth = 0;
@@ -412,6 +411,79 @@ export default class FlexContainer extends Element {
       }
 
       offsetX += columnWidth + gap;
+    }
+  }
+
+  private calculateGrowSize(
+    layoutGroups: Element[][],
+    direction: "horizontal" | "vertical"
+  ): void {
+    const isHorizontal = direction === "horizontal";
+    const containerSize = isHorizontal
+      ? this.value.size?.width ?? Infinity
+      : this.value.size?.height ?? Infinity;
+
+    const gap = this.value.gap ?? 0;
+
+    for (const group of layoutGroups) {
+      const growables = group.filter((el) => el.value.grows === true);
+      if (growables.length === 0) continue;
+
+      // Calculate total size used by non-grow elements
+      let usedSpace = 0;
+      for (const el of group) {
+        if (el.value.grows !== true) {
+          const size = el.getBoxModelSize();
+          const dimension = isHorizontal ? size.width : size.height;
+          usedSpace += Number.isFinite(dimension) ? dimension : 0;
+        }
+      }
+
+      const totalGap = (group.length - 1) * gap;
+      const availableSpace = containerSize - usedSpace - totalGap;
+
+      if (!isFinite(availableSpace) || availableSpace <= 0) {
+        console.warn(`[Grow Warning] No available space to grow in group.`);
+        continue;
+      }
+
+      const growSize = availableSpace / growables.length;
+
+      if (!isFinite(growSize) || growSize <= 0) {
+        console.warn(`[Grow Warning] Invalid grow size: ${growSize}`);
+        continue;
+      }
+
+      for (const el of growables) {
+        const minSize = isHorizontal
+          ? el.value.min?.width ?? 1
+          : el.value.min?.height ?? 1;
+
+        if (!Number.isFinite(minSize) || minSize <= 0) {
+          console.warn(
+            `[Grow Warning] Element "${
+              el.value.id ?? el.value.name ?? "unknown"
+            }" is set to grow but has no valid minimum size defined.\nStack Trace:\n${
+              new Error().stack
+            }`
+          );
+        }
+
+        el.value.size ??= {};
+
+        if (isHorizontal) {
+          el.value.size.width = Math.max(minSize, growSize);
+        } else {
+          el.value.size.height = Math.max(minSize, growSize);
+        }
+
+        // Optional debug logging
+        console.log(
+          `[Grow Assigned] ${el.value.name ?? el.value.id ?? "?"}: ${
+            isHorizontal ? el.value.size.width : el.value.size.height
+          }px`
+        );
+      }
     }
   }
 

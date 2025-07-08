@@ -85,6 +85,8 @@ export type ElementType = {
   justify?: Justify;
   visible?: boolean;
   flexGrow?: number;
+  fitWidth?: boolean;
+  fitHeight?: boolean;
   type?: ElementTypes;
   margin?: BoxSpacing;
   flexShrink?: number;
