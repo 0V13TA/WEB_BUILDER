@@ -1,7 +1,7 @@
 import { Node } from "../utils/tree/node";
-import type { ElementType } from "../utils/types";
-import parseBorderRadius from "../utils/parseBorderRadii";
-import { parseBoxSpacing } from "../utils/parseBoxSpacing";
+import type { ElementType } from "../utils/data/types";
+import parseBorderRadius from "../utils/parseFunctions/parseBorderRadii";
+import { parseBoxSpacing } from "../utils/parseFunctions/parseBoxSpacing";
 
 const defaultColor: [number, number, number, number] = [0, 0, 0, 1];
 

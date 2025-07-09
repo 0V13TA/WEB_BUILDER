@@ -1,6 +1,6 @@
 import Element from "./element";
-import type { ElementType } from "../utils/types";
-import { rgbaToHex } from "../utils/colorUtils";
+import type { ElementType } from "../utils/data/types";
+import { rgbaToHex } from "../utils/parseFunctions/colorUtils";
 
 export default class FlexContainer extends Element {
   constructor(value: Partial<ElementType>) {

@@ -1,4 +1,4 @@
-import { type Color } from "./types";
+import { type Color } from "../data/types";
 export type hsla = [
   hue: number,
   saturation: number,

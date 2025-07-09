@@ -1,6 +1,6 @@
 import FlexContainer from "./elements/flexContainer";
-import colorMap from "./utils/colors";
-import type { ElementType } from "./utils/types";
+import colorMap from "./utils/data/colors";
+import type { ElementType } from "./utils/data/types";
 
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
