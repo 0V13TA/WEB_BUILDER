@@ -5,7 +5,7 @@ import type { ElementType } from "./utils/types";
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 document.body.append(canvas);
-const ratio = 0.997;
+const ratio = 0.9;
 canvas.width = innerWidth * ratio;
 canvas.height = innerHeight * ratio;
 
@@ -22,7 +22,7 @@ function init() {
   const flexValue: ElementType = {
     gap: 5,
     margin: 0,
-    padding: 0,
+    padding: 10,
     align: "start",
     grows: false,
     flexWrap: "wrap",
@@ -35,19 +35,12 @@ function init() {
 
   const child: ElementType = {
     margin: 0,
+    grows: true,
     size: { width: 100, height: 100 },
     background: { color: colorMap.brown }
   };
 
   const child1: ElementType = {
-    min: { width: 10 },
-    margin: 0,
-    size: { width: 100, height: 100 },
-    background: { color: colorMap.burlywood }
-  };
-
-  const child3: ElementType = {
-    grows: true,
     min: { width: 10 },
     margin: 0,
     size: { width: 100, height: 100 },
@@ -64,7 +57,6 @@ function init() {
   const childFlex = new FlexContainer(child);
   const child1Flex = new FlexContainer(child1);
   const child2Flex = new FlexContainer(child2);
-  const child3Flex = new FlexContainer(child3);
 
   //
 
@@ -77,9 +69,8 @@ function init() {
     child1Flex,
     child2Flex,
     child1Flex,
-    child3Flex,
     childFlex,
-    child1Flex,
+    child1Flex
   ];
 
   for (const child of children) {

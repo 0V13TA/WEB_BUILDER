@@ -8,7 +8,8 @@ export default class FlexContainer extends Element {
   }
 
   public draw(_ctx: CanvasRenderingContext2D): void {
-    if ((this.value.fitHeight || this.value.fitWidth) && this.value.grows)
+    const fits = this.value.fitHeight || this.value.fitWidth;
+    if (fits && this.value.grows) {
       console.warn(
         `[Layout Conflict] Element "${
           this.value.name ?? this.value.id ?? "unknown"
@@ -16,6 +17,37 @@ export default class FlexContainer extends Element {
           new Error().stack
         }`
       );
+    }
+
+    if (fits && this.value.flexWrap) {
+      console.warn(
+        `[Layout Warning] Element "${
+          this.value.name ?? this.value.id ?? "unknown"
+        }" is set to "wrap: true" but has no fixed size or constraints. ` +
+          `This may result in unpredictable wrapping behavior, as fit-content layouts don't define clear boundaries.\n` +
+          `Hint: Either define a fixed size or mark the element as "fixed: true" to stabilize its layout.\nStack Trace:\n` +
+          new Error().stack
+      );
+    }
+
+    if (
+      this.value.flexWrap &&
+      (!this.value.size?.width || !this.value.size?.height)
+    ) {
+      console.warn(
+        `[Wrap Warning] Element "${
+          this.value.id ?? this.value.name ?? "unknown"
+        }" is set to wrap but lacks an explicit size, even though it has padding. ` +
+          `This may result in children wrapping unexpectedly or being clipped.\nStack Trace:\n${
+            new Error().stack
+          }`
+      );
+    }
+
+    const { width, height } = this.getChildrenSizes();
+
+    if (this.value.fitHeight) this.value.size!.width = width;
+    if (this.value.fitWidth) this.value.size!.height = height;
 
     _ctx.save();
     this.drawPadding(_ctx);
@@ -143,6 +175,22 @@ export default class FlexContainer extends Element {
     }
   }
 
+  private getChildrenSizes() {
+    let width = 0,
+      height = 0;
+    const children = this.getChildren();
+
+    for (const child of children) {
+      const size = child.getBoxModelSize();
+      width += size.width;
+      height = Math.max(size.height, height);
+    }
+
+    width += this.value.gap! * (children.length - 1);
+
+    return { width, height };
+  }
+
   private getChildrenSizesRow(): Element[][] {
     const rows: Element[][] = [];
     let currentRow: Element[] = [];
@@ -221,9 +269,13 @@ export default class FlexContainer extends Element {
     const { x, y } = this.getBoxModelOffset();
     const rows = this.getChildrenSizesRow();
     const gap = this.value.gap ?? 0;
-    const containerWidth = this.value.size?.width ?? Infinity;
 
-    let offsetY = this.value.position!.y + y - this.value.scrollY!;
+    const padding = this.getPadding();
+    const containerWidth = this.value.size?.width ?? Infinity;
+    const contentWidth = containerWidth - padding.left - padding.right;
+
+    let offsetY =
+      this.value.position!.y + y - this.value.scrollY! + padding.top;
 
     this.calculateGrowSize(rows, "horizontal");
 
@@ -239,16 +291,19 @@ export default class FlexContainer extends Element {
     contentHeight += gap * (rows.length - 1);
 
     // Apply vertical alignment
-    const spaceLeftY = this.value.size?.height! - contentHeight;
+    const verticalSpace =
+      (this.value.size?.height ?? Infinity) -
+      padding.top -
+      padding.bottom -
+      contentHeight;
     switch (this.value.align) {
       case "center":
-        offsetY += spaceLeftY / 2;
+        offsetY += verticalSpace / 2;
         break;
       case "end":
-        offsetY += spaceLeftY;
+        offsetY += verticalSpace;
         break;
       case "start":
-        break;
       case undefined:
         break;
       default:
@@ -277,9 +332,11 @@ export default class FlexContainer extends Element {
       const numGaps = row.length > 1 ? row.length - 1 : 0;
       const totalGapsWidth = gap * numGaps;
       const totalContentWidth = totalRowWidth + totalGapsWidth;
-      const availableSpace = containerWidth - totalContentWidth;
+      const availableSpace = contentWidth - totalContentWidth;
 
-      let offsetX = this.value.position!.x + x - this.value.scrollX!;
+      // Start drawing from inside the padding box
+      let offsetX =
+        this.value.position!.x + x - this.value.scrollX! + padding.left;
       let spacing = gap;
 
       // Apply horizontal justification
@@ -292,19 +349,31 @@ export default class FlexContainer extends Element {
           break;
         case "space-between":
           if (row.length > 1) {
-            spacing = (containerWidth - totalRowWidth) / (row.length - 1);
+            spacing = availableSpace / (row.length - 1);
           }
           break;
         case "space-around":
-          spacing = (containerWidth - totalRowWidth) / row.length;
+          spacing = availableSpace / row.length;
           offsetX += spacing / 2;
           break;
         case "space-evenly":
-          spacing = (containerWidth - totalRowWidth) / (row.length + 1);
+          spacing = availableSpace / (row.length + 1);
           offsetX += spacing;
           break;
         case "start":
+        case undefined:
+          break;
         default:
+          console.warn(
+            `[Justify Warning] Invalid value for "justify": "${
+              this.value.justify
+            }" on element "${
+              this.value.id ?? this.value.name ?? "unknown"
+            }". ` +
+              `Expected one of: "start", "center", "end", "space-between", "space-around", or "space-evenly". Defaulting to "start".\nStack Trace:\n${
+                new Error().stack
+              }`
+          );
           break;
       }
 
@@ -469,19 +538,35 @@ export default class FlexContainer extends Element {
           );
         }
 
-        el.value.size ??= {};
+        const padding = this.getPadding();
+        const margin = this.getMargin();
+        const border = this.getBorderWidth();
 
+        const decoration = isHorizontal
+          ? padding.left +
+            padding.right +
+            margin.left +
+            margin.right +
+            border * 2
+          : padding.top +
+            padding.bottom +
+            margin.top +
+            margin.bottom +
+            border * 2;
+
+        const assignedContentSize = Math.max(minSize, growSize - decoration);
+
+        el.value.size ??= {};
         if (isHorizontal) {
-          el.value.size.width = Math.max(minSize, growSize);
+          el.value.size.width = Math.max(0, assignedContentSize);
         } else {
-          el.value.size.height = Math.max(minSize, growSize);
+          el.value.size.height = Math.max(0, assignedContentSize);
         }
 
-        // Optional debug logging
         console.log(
           `[Grow Assigned] ${el.value.name ?? el.value.id ?? "?"}: ${
             isHorizontal ? el.value.size.width : el.value.size.height
-          }px`
+          }px (excluding box model)`
         );
       }
     }
