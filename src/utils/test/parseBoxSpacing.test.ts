@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseBoxSpacing } from "./parseBoxSpacing";
+import { parseBoxSpacing } from "../parseFunctions/parseBoxSpacing";
 
 describe("parseBoxSpacing", () => {
   it("returns all zeros for undefined", () => {

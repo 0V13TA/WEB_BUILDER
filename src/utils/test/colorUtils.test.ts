@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import * as colorUtils from "./colorUtils";
+import * as colorUtils from "../parseFunctions/colorUtils";
 
 describe("Color Utils", () => {
   it("should expand hex color #RGB to #RRGGBB", () => {
